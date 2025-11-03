@@ -57,6 +57,8 @@ busy/
    - n8n: http://localhost:5678 (credentials: admin/admin)
    - PostgreSQL: localhost:5432
 
+> **⚠️ Important**: This setup uses default credentials for development. For production deployment, change all default passwords and follow the security recommendations in the [Security](#security) section below.
+
 ## Services
 
 ### Chat Application (Port 3000)
@@ -135,6 +137,8 @@ docker compose build chat-app
 - `N8N_BASIC_AUTH_USER`: n8n username (default: admin)
 - `N8N_BASIC_AUTH_PASSWORD`: n8n password (default: admin)
 
+> **⚠️ SECURITY WARNING**: The default credentials (admin/admin) should be changed immediately in production! Use environment variables or `docker-compose.override.yml` to set secure credentials.
+
 ## Project Structure
 
 ### Apps
@@ -171,6 +175,47 @@ docker compose down
 # Stop and remove volumes (clean slate)
 docker compose down -v
 ```
+
+## Security
+
+### Development vs Production
+
+This repository is configured for **development** use by default. For production deployment:
+
+1. **Change Default Credentials**
+   ```bash
+   # Create docker-compose.override.yml
+   cp docker-compose.override.yml.example docker-compose.override.yml
+   
+   # Edit and set secure passwords
+   # - N8N_BASIC_AUTH_PASSWORD
+   # - POSTGRES_PASSWORD
+   ```
+
+2. **Use Environment Variables**
+   - Never commit `.env` files with real credentials
+   - Use Docker secrets or external secret management
+   - Set `OPENAI_API_KEY` securely
+
+3. **Enable HTTPS**
+   - Use reverse proxy (nginx, Traefik)
+   - Enable SSL/TLS certificates
+   - Configure HTTPS redirects
+
+4. **Database Security**
+   - Use strong PostgreSQL passwords
+   - Limit database network access
+   - Enable SSL for database connections
+   - Regular backups
+
+5. **Additional Hardening**
+   - Enable rate limiting
+   - Implement API authentication
+   - Use security headers
+   - Regular security updates
+   - Monitor logs for suspicious activity
+
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed security recommendations.
 
 ## Troubleshooting
 

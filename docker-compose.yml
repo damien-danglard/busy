@@ -28,6 +28,8 @@ services:
     ports:
       - "5678:5678"
     environment:
+      # SECURITY WARNING: Change these credentials in production!
+      # Use environment variables or docker-compose.override.yml
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=admin
       - N8N_BASIC_AUTH_PASSWORD=admin
@@ -72,8 +74,23 @@ services:
         condition: service_healthy
       mcp-server:
         condition: service_started
-    command: >
-      sh -c "npx prisma migrate deploy && node server.js"
+      migration:
+        condition: service_completed_successfully
+
+  # Database Migration (runs once and exits)
+  migration:
+    build:
+      context: .
+      dockerfile: apps/chat-app/Dockerfile
+      target: builder
+    container_name: busy-migration
+    environment:
+      - DATABASE_URL=postgresql://busy:busy123@postgres:5432/busy_db
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: npx prisma migrate deploy
+    restart: "no"
 
 volumes:
   postgres_data:
