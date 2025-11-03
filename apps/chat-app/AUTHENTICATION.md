@@ -27,7 +27,7 @@ npx prisma migrate dev
 
 ## Seed Demo User
 
-To create the demo user (admin@busy.com / admin123):
+To create the demo user (admin@busy.com / BusyAdmin2024!):
 
 ```bash
 cd apps/chat-app
@@ -54,7 +54,9 @@ npx prisma db seed
 ## Demo Credentials
 
 - **Email**: admin@busy.com
-- **Password**: admin123
+- **Password**: BusyAdmin2024!
+
+> **Note**: This is a demo password for development only. In production, ensure users create strong, unique passwords.
 
 ## Usage
 

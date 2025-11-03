@@ -62,7 +62,7 @@ busy/
    ```
 
 5. **Access the applications**
-   - Chat App: http://localhost:3000 (login: admin@busy.com / admin123)
+   - Chat App: http://localhost:3000 (login: admin@busy.com / BusyAdmin2024!)
    - n8n: http://localhost:5678 (credentials: admin/admin)
    - PostgreSQL: localhost:5432
 
@@ -154,7 +154,7 @@ docker compose build chat-app
 
 > **⚠️ SECURITY WARNING**: The default credentials should be changed immediately in production! This includes:
 > - n8n credentials (admin/admin)
-> - Chat app demo user (admin@busy.com / admin123)
+> - Chat app demo user (admin@busy.com / BusyAdmin2024!)
 > - NEXTAUTH_SECRET
 > - Database passwords
 >

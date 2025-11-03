@@ -97,8 +97,8 @@ export default function LoginPage() {
               Sign up
             </Link>
           </p>
-          <p className="text-gray-600 dark:text-gray-400">
-            Demo credentials: admin@busy.com / admin123
+          <p className="text-gray-600 dark:text-gray-400 text-xs">
+            Demo: admin@busy.com / BusyAdmin2024!
           </p>
         </div>
       </div>

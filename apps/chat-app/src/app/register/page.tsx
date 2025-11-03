@@ -99,9 +99,9 @@ export default function RegisterPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              minLength={6}
+              minLength={8}
               className="w-full p-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
-              placeholder="••••••••"
+              placeholder="Min. 8 characters"
             />
           </div>
 
