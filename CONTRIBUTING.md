@@ -83,14 +83,14 @@ Currently, the project focuses on Docker-based integration testing:
 
 ```bash
 # Build and test all services
-docker-compose build
-docker-compose up
+docker compose build
+docker compose up
 
 # Verify services are running
-docker-compose ps
+docker compose ps
 
 # Check logs
-docker-compose logs
+docker compose logs
 ```
 
 ## Making Changes
@@ -129,8 +129,8 @@ docs: update README with installation steps
 
 2. Ensure all services build and run:
    ```bash
-   docker-compose build
-   docker-compose up
+   docker compose build
+   docker compose up
    ```
 
 3. Push your changes:
@@ -171,25 +171,25 @@ docs: update README with installation steps
 ### Building Images
 ```bash
 # Build all images
-docker-compose build
+docker compose build
 
 # Build specific service
-docker-compose build chat-app
+docker compose build chat-app
 
 # No cache build
-docker-compose build --no-cache
+docker compose build --no-cache
 ```
 
 ### Debugging Containers
 ```bash
 # View logs
-docker-compose logs -f chat-app
+docker compose logs -f chat-app
 
 # Execute commands in container
-docker-compose exec chat-app sh
+docker compose exec chat-app sh
 
 # Inspect container
-docker-compose exec chat-app env
+docker compose exec chat-app env
 ```
 
 ## Common Issues
@@ -201,14 +201,14 @@ If you get port conflicts:
 lsof -i :3000
 
 # Stop all services
-docker-compose down
+docker compose down
 ```
 
 ### Database Connection Issues
 ```bash
 # Reset database
-docker-compose down -v
-docker-compose up -d postgres
+docker compose down -v
+docker compose up -d postgres
 
 # Run migrations
 cd apps/chat-app

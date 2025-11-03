@@ -11,8 +11,8 @@ if ! command -v docker &> /dev/null; then
 fi
 
 # Check if Docker Compose is installed
-if ! command -v docker-compose &> /dev/null; then
-    echo "❌ Docker Compose is not installed. Please install Docker Compose first."
+if ! command -v docker &> /dev/null || ! docker compose version &> /dev/null; then
+    echo "❌ Docker Compose is not installed. Please install Docker with Compose plugin."
     exit 1
 fi
 
@@ -34,7 +34,7 @@ echo "✅ Initialization complete!"
 echo ""
 echo "Next steps:"
 echo "1. Edit .env and add your OPENAI_API_KEY"
-echo "2. Run 'docker-compose up' to start all services"
+echo "2. Run 'docker compose up' to start all services"
 echo "3. Access the applications:"
 echo "   - Chat App: http://localhost:3000"
 echo "   - n8n: http://localhost:5678 (admin/admin)"

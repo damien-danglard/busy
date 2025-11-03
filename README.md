@@ -49,7 +49,7 @@ busy/
 
 3. **Start all services with Docker Compose**
    ```bash
-   docker-compose up
+   docker compose up
    ```
 
 4. **Access the applications**
@@ -116,10 +116,10 @@ busy/
 
 ```bash
 # Build all images
-docker-compose build
+docker compose build
 
 # Build specific service
-docker-compose build chat-app
+docker compose build chat-app
 ```
 
 ## Environment Variables
@@ -166,24 +166,24 @@ The chat application uses Prisma with the following models:
 
 ```bash
 # Stop all services
-docker-compose down
+docker compose down
 
 # Stop and remove volumes (clean slate)
-docker-compose down -v
+docker compose down -v
 ```
 
 ## Troubleshooting
 
 ### Chat app can't connect to database
-- Ensure PostgreSQL container is healthy: `docker-compose ps`
-- Check logs: `docker-compose logs postgres`
+- Ensure PostgreSQL container is healthy: `docker compose ps`
+- Check logs: `docker compose logs postgres`
 
 ### n8n won't start
 - Check if port 5678 is already in use
-- View logs: `docker-compose logs n8n`
+- View logs: `docker compose logs n8n`
 
 ### Build failures
-- Clear Docker cache: `docker-compose build --no-cache`
+- Clear Docker cache: `docker compose build --no-cache`
 - Remove old images: `docker system prune -a`
 
 ## Contributing
