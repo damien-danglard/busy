@@ -13,6 +13,10 @@ pnpm-debug.log*
 .env.test.local
 .env.production.local
 
+# Docker
+*.log
+docker-compose.override.yml
+
 # Next.js
 .next/
 out/
@@ -36,9 +40,6 @@ Thumbs.db
 
 # Prisma
 prisma/migrations/
-
-# Docker
-*.log
 
 # n8n
 .n8n/
