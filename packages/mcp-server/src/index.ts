@@ -1,96 +1,94 @@
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import {
-  CallToolRequestSchema,
-  ListToolsRequestSchema,
-} from '@modelcontextprotocol/sdk/types.js';
+// Simple MCP Server stub implementation
+// This is a placeholder for future MCP integration
 
-const server = new Server(
+interface Tool {
+  name: string;
+  description: string;
+  inputSchema: {
+    type: string;
+    properties: Record<string, unknown>;
+    required?: string[];
+  };
+}
+
+const tools: Tool[] = [
   {
-    name: 'busy-mcp-server',
-    version: '1.0.0',
+    name: 'get_status',
+    description: 'Get the current status of the busy assistant',
+    inputSchema: {
+      type: 'object',
+      properties: {},
+    },
   },
   {
-    capabilities: {
-      tools: {},
+    name: 'execute_task',
+    description: 'Execute a task with the busy assistant',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        task: {
+          type: 'string',
+          description: 'The task to execute',
+        },
+      },
+      required: ['task'],
     },
-  }
-);
+  },
+];
 
-// List available tools
-server.setRequestHandler(ListToolsRequestSchema, async () => {
-  return {
-    tools: [
-      {
-        name: 'get_status',
-        description: 'Get the current status of the busy assistant',
-        inputSchema: {
-          type: 'object',
-          properties: {},
-        },
-      },
-      {
-        name: 'execute_task',
-        description: 'Execute a task with the busy assistant',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            task: {
-              type: 'string',
-              description: 'The task to execute',
-            },
-          },
-          required: ['task'],
-        },
-      },
-    ],
-  };
-});
-
-// Handle tool calls
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
-  const { name, arguments: args } = request.params;
-
+function handleToolCall(name: string, args: Record<string, unknown>) {
   switch (name) {
     case 'get_status':
       return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify({
-              status: 'running',
-              timestamp: new Date().toISOString(),
-            }),
-          },
-        ],
+        status: 'running',
+        timestamp: new Date().toISOString(),
       };
 
     case 'execute_task':
       return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify({
-              task: args?.task,
-              status: 'completed',
-              result: 'Task executed successfully',
-            }),
-          },
-        ],
+        task: args?.task,
+        status: 'completed',
+        result: 'Task executed successfully',
       };
 
     default:
       throw new Error(`Unknown tool: ${name}`);
   }
-});
-
-async function main() {
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
-  console.error('Busy MCP Server running on stdio');
 }
 
-main().catch((error) => {
-  console.error('Server error:', error);
-  process.exit(1);
+// Simple stdio-based server
+process.stdin.setEncoding('utf8');
+
+let buffer = '';
+
+process.stdin.on('data', (chunk: string) => {
+  buffer += chunk;
+  
+  const lines = buffer.split('\n');
+  buffer = lines.pop() || '';
+  
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    
+    try {
+      const request = JSON.parse(line);
+      let response;
+      
+      if (request.method === 'tools/list') {
+        response = { tools };
+      } else if (request.method === 'tools/call') {
+        const result = handleToolCall(request.params.name, request.params.arguments || {});
+        response = { result };
+      } else {
+        response = { error: 'Unknown method' };
+      }
+      
+      console.log(JSON.stringify(response));
+    } catch (error) {
+      console.error('Error processing request:', error);
+    }
+  }
 });
+
+console.error('Busy MCP Server running on stdio');
+

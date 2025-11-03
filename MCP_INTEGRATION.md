@@ -1,5 +1,7 @@
 # Model Context Protocol (MCP) Integration
 
+> **Note**: This is currently a stub implementation. The MCP server provides a basic stdio-based JSON-RPC interface for tool discovery and execution. A full Model Context Protocol SDK implementation can be integrated in the future.
+
 ## Overview
 
 This monorepo uses the Model Context Protocol (MCP) to enable communication between different applications and services. The MCP server acts as a central hub for tool discovery and execution.

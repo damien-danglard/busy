@@ -1,32 +1,30 @@
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+// MCP Client stub - placeholder for future MCP integration
+// This would connect to the MCP server in a production environment
 
-let mcpClient: Client | null = null;
+interface MCPClient {
+  name: string;
+  version: string;
+}
 
-export async function getMCPClient() {
+let mcpClient: MCPClient | null = null;
+
+export async function getMCPClient(): Promise<MCPClient> {
   if (!mcpClient) {
-    mcpClient = new Client(
-      {
-        name: 'chat-app-client',
-        version: '1.0.0',
-      },
-      {
-        capabilities: {},
-      }
-    );
-
-    // In production, this would connect to the MCP server
-    // For now, we'll initialize it without a transport
+    mcpClient = {
+      name: 'chat-app-client',
+      version: '1.0.0',
+    };
     console.log('MCP Client initialized');
   }
   return mcpClient;
 }
 
-export async function callMCPTool(toolName: string, args: unknown) {
-  const client = await getMCPClient();
-  // TODO: Validate the shape of `args` here before using it.
-  // Implement MCP tool calling logic here
+export async function callMCPTool(toolName: string, args: unknown): Promise<{ result: string }> {
+  await getMCPClient();
+  // TODO: Implement actual MCP tool calling logic
+  // For now, return a stub response
   return {
     result: `Called ${toolName} with args: ${JSON.stringify(args)}`,
   };
 }
+
