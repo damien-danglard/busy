@@ -1,0 +1,12 @@
+{
+  "name": "@busy/n8n",
+  "version": "1.0.0",
+  "private": true,
+  "description": "n8n workflow automation for busy monorepo",
+  "scripts": {
+    "start": "n8n start"
+  },
+  "dependencies": {
+    "n8n": "^1.17.0"
+  }
+}

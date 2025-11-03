@@ -1,0 +1,98 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: busy-postgres
+    restart: unless-stopped
+    environment:
+      # DEVELOPMENT DEFAULTS - Override in production with .env or docker-compose.override.yml
+      POSTGRES_USER: ${POSTGRES_USER:-busy}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-busy123}
+      POSTGRES_DB: ${POSTGRES_DB:-busy_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-busy}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # n8n Workflow Automation
+  n8n:
+    build:
+      context: .
+      dockerfile: apps/n8n/Dockerfile
+    container_name: busy-n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      # DEVELOPMENT DEFAULTS - Override in production!
+      # Use .env file or docker-compose.override.yml to set secure credentials
+      - N8N_BASIC_AUTH_ACTIVE=${N8N_BASIC_AUTH_ACTIVE:-true}
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD:-admin}
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://n8n:5678/
+      - GENERIC_TIMEZONE=UTC
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # MCP Server
+  mcp-server:
+    build:
+      context: .
+      dockerfile: packages/mcp-server/Dockerfile
+    container_name: busy-mcp-server
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+
+  # Next.js Chat Application
+  chat-app:
+    build:
+      context: .
+      dockerfile: apps/chat-app/Dockerfile
+    container_name: busy-chat-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-busy}:${POSTGRES_PASSWORD:-busy123}@postgres:5432/${POSTGRES_DB:-busy_db}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mcp-server:
+        condition: service_started
+      migration:
+        condition: service_completed_successfully
+
+  # Database Migration (runs once and exits)
+  migration:
+    build:
+      context: .
+      dockerfile: apps/chat-app/Dockerfile
+      target: builder
+    container_name: busy-migration
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-busy}:${POSTGRES_PASSWORD:-busy123}@postgres:5432/${POSTGRES_DB:-busy_db}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: npx prisma migrate deploy
+    restart: "no"
+
+volumes:
+  postgres_data:
+  n8n_data:

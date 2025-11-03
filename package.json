@@ -1,0 +1,19 @@
+{
+  "name": "busy-monorepo",
+  "version": "1.0.0",
+  "description": "AI automated work assistant - Monorepo with n8n and Next.js chat app",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "docker compose up",
+    "build": "docker compose build",
+    "down": "docker compose down",
+    "clean": "docker compose down -v"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,0 +1,43 @@
+# docker-compose.override.yml
+# This file is used to override settings for production
+# Copy this to docker-compose.override.yml and customize
+
+services:
+  postgres:
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_password_here}
+    # Add backup volume
+    # volumes:
+    #   - postgres_data:/var/lib/postgresql/data
+    #   - ./backups:/backups
+
+  n8n:
+    environment:
+      - N8N_BASIC_AUTH_USER=${N8N_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD:-change_this_password}
+      # Enable encryption for credentials
+      # - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      # External webhook URL for production
+      # - WEBHOOK_URL=https://your-domain.com/
+
+  chat-app:
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - DATABASE_URL=postgresql://${DB_USER:-busy}:${DB_PASSWORD:-secure_password_here}@postgres:5432/${DB_NAME:-busy_db}
+    # Add reverse proxy labels (e.g., for Traefik)
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.chat-app.rule=Host(`chat.your-domain.com`)"
+    #   - "traefik.http.routers.chat-app.entrypoints=websecure"
+    #   - "traefik.http.routers.chat-app.tls.certresolver=letsencrypt"
+
+  mcp-server:
+    # Add resource limits for production
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '0.5'
+    #       memory: 512M
+    #     reservations:
+    #       cpus: '0.25'
+    #       memory: 256M
