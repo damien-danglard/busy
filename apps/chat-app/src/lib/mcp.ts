@@ -22,8 +22,9 @@ export async function getMCPClient() {
   return mcpClient;
 }
 
-export async function callMCPTool(toolName: string, args: any) {
+export async function callMCPTool(toolName: string, args: unknown) {
   const client = await getMCPClient();
+  // TODO: Validate the shape of `args` here before using it.
   // Implement MCP tool calling logic here
   return {
     result: `Called ${toolName} with args: ${JSON.stringify(args)}`,
