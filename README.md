@@ -22,8 +22,9 @@ busy/
 
 - 🤖 **n8n Workflow Automation**: Pre-configured n8n instance for workflow automation
 - 💬 **AI Chat Interface**: Next.js-based chat application with LangChain integration
+- 🔐 **Authentication**: Secure user authentication with NextAuth.js (email/password)
 - 🔗 **MCP Integration**: Both apps connected via Model Context Protocol
-- 🗄️ **PostgreSQL Database**: Persistent storage for chat history
+- 🗄️ **PostgreSQL Database**: Persistent storage for chat history and user data
 - 🐳 **Dockerized**: All services run in Docker containers
 - 📦 **Monorepo**: Organized workspace structure
 
@@ -44,7 +45,9 @@ busy/
 2. **Set up environment variables**
    ```bash
    cp .env.example .env
-   # Edit .env and add your OPENAI_API_KEY
+   # Edit .env and configure:
+   # - OPENAI_API_KEY: Your OpenAI API key
+   # - NEXTAUTH_SECRET: Generate with 'openssl rand -base64 32'
    ```
 
 3. **Start all services with Docker Compose**
@@ -52,8 +55,14 @@ busy/
    docker compose up
    ```
 
-4. **Access the applications**
-   - Chat App: http://localhost:3000
+4. **Create demo user (optional)**
+   ```bash
+   # After services are running, seed the database with a demo user
+   docker exec busy-chat-app npm run db:seed
+   ```
+
+5. **Access the applications**
+   - Chat App: http://localhost:3000 (login: admin@busy.com / admin123)
    - n8n: http://localhost:5678 (credentials: admin/admin)
    - PostgreSQL: localhost:5432
 
@@ -63,10 +72,12 @@ busy/
 
 ### Chat Application (Port 3000)
 - Built with Next.js 14 and React
+- NextAuth.js authentication with email/password
 - LangChain integration for AI conversations
 - Prisma ORM with PostgreSQL
 - Tailwind CSS for styling
 - MCP client integration
+- Protected routes and session management
 
 ### n8n Workflow Automation (Port 5678)
 - Full n8n workflow automation platform
@@ -128,16 +139,26 @@ docker compose build chat-app
 
 ### Root `.env`
 - `OPENAI_API_KEY`: Your OpenAI API key for LangChain
+- `NEXTAUTH_SECRET`: Secret key for NextAuth.js JWT encryption (generate with `openssl rand -base64 32`)
+- `NEXTAUTH_URL`: Base URL for NextAuth.js (e.g., `http://localhost:3000`)
 
 ### Chat App
 - `DATABASE_URL`: PostgreSQL connection string
 - `OPENAI_API_KEY`: OpenAI API key
+- `NEXTAUTH_SECRET`: Secret for NextAuth.js
+- `NEXTAUTH_URL`: Base URL for authentication
 
 ### n8n
 - `N8N_BASIC_AUTH_USER`: n8n username (default: admin)
 - `N8N_BASIC_AUTH_PASSWORD`: n8n password (default: admin)
 
-> **⚠️ SECURITY WARNING**: The default credentials (admin/admin) should be changed immediately in production! Use environment variables or `docker-compose.override.yml` to set secure credentials.
+> **⚠️ SECURITY WARNING**: The default credentials should be changed immediately in production! This includes:
+> - n8n credentials (admin/admin)
+> - Chat app demo user (admin@busy.com / admin123)
+> - NEXTAUTH_SECRET
+> - Database passwords
+>
+> Use environment variables or `docker-compose.override.yml` to set secure credentials.
 
 ## Project Structure
 
@@ -160,6 +181,12 @@ The MCP server provides a standardized way for both applications to communicate 
 The chat application uses Prisma with the following models:
 - **Message**: Stores chat messages with role (user/assistant)
 - **Conversation**: Manages conversation threads
+- **User**: User accounts with authentication credentials
+- **Account**: OAuth provider accounts (for future OAuth integration)
+- **Session**: User sessions for NextAuth.js
+- **VerificationToken**: Email verification tokens
+
+For more details on authentication, see [apps/chat-app/AUTHENTICATION.md](apps/chat-app/AUTHENTICATION.md).
 
 ## Docker Volumes
 
