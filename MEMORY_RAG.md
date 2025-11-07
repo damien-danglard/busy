@@ -203,7 +203,7 @@ When storing memories, reformulate them clearly:
 ## Limitations
 
 1. **Embedding Cost**: Each memory storage/retrieval requires OpenAI API call
-2. **Vector Dimension**: Fixed at 1536 dimensions (OpenAI's ada-002)
+2. **Vector Dimension**: Fixed at 1536 dimensions (OpenAI's text-embedding-3-small)
 3. **Search Scope**: Only searches within user's own memories
 4. **No Automatic Cleanup**: Old memories persist until manually deleted
 
