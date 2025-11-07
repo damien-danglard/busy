@@ -22,9 +22,10 @@ busy/
 
 - 🤖 **n8n Workflow Automation**: Pre-configured n8n instance for workflow automation
 - 💬 **AI Chat Interface**: Next.js-based chat application with LangChain integration
+- 🧠 **Personal Memory RAG**: AI remembers user-specific information across conversations using vector embeddings
 - 🔐 **Authentication**: Secure user authentication with NextAuth.js (email/password)
 - 🔗 **MCP Integration**: Both apps connected via Model Context Protocol
-- 🗄️ **PostgreSQL Database**: Persistent storage for chat history and user data
+- 🗄️ **PostgreSQL Database**: Persistent storage with pgvector extension for semantic search
 - 🐳 **Dockerized**: All services run in Docker containers
 - 📦 **Monorepo**: Organized workspace structure
 
@@ -73,11 +74,14 @@ busy/
 ### Chat Application (Port 3000)
 - Built with Next.js 14 and React
 - NextAuth.js authentication with email/password
-- LangChain integration for AI conversations
-- Prisma ORM with PostgreSQL
+- LangChain integration for AI conversations with OpenAI Functions Agent
+- Personal Memory RAG system with vector embeddings
+- Prisma ORM with PostgreSQL and pgvector
 - Tailwind CSS for styling
 - MCP client integration
 - Protected routes and session management
+
+For detailed information about the Personal Memory RAG feature, see [MEMORY_RAG.md](./MEMORY_RAG.md).
 
 ### n8n Workflow Automation (Port 5678)
 - Full n8n workflow automation platform
@@ -87,10 +91,12 @@ busy/
 
 ### MCP Server (Port 3001)
 - TypeScript-based MCP server
-- Provides tools for both applications
+- Provides tools for both applications including memory operations
 - Standardized communication protocol
 
 ### PostgreSQL Database (Port 5432)
+- Version 16 with pgvector extension
+- Vector similarity search support
 - Version 16 Alpine
 - Credentials: busy/busy123
 - Database: busy_db
@@ -181,6 +187,7 @@ The MCP server provides a standardized way for both applications to communicate 
 The chat application uses Prisma with the following models:
 - **Message**: Stores chat messages with role (user/assistant)
 - **Conversation**: Manages conversation threads
+- **Memory**: Stores user-specific memories with vector embeddings for semantic search
 - **User**: User accounts with authentication credentials
 - **Account**: OAuth provider accounts (for future OAuth integration)
 - **Session**: User sessions for NextAuth.js
