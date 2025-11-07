@@ -66,9 +66,10 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('query');
-    const limit = Math.max(1, Math.min(100, parseInt(searchParams.get('limit') || '10')));
-    const offset = Math.max(0, parseInt(searchParams.get('offset') || '0'));
-    
+    const limitParam = parseInt(searchParams.get('limit') || '10');
+    const limit = isNaN(limitParam) ? 10 : Math.max(1, Math.min(100, limitParam));
+    const offsetParam = parseInt(searchParams.get('offset') || '0');
+    const offset = isNaN(offsetParam) ? 0 : Math.max(0, offsetParam);
     // Validate similarity threshold (must be between 0.0 and 1.0)
     const thresholdParam = parseFloat(searchParams.get('threshold') || '0.7');
     const similarityThreshold = Math.max(0.0, Math.min(1.0, isNaN(thresholdParam) ? 0.7 : thresholdParam));
