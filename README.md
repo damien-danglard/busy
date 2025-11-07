@@ -97,7 +97,7 @@ For detailed information about the Personal Memory RAG feature, see [MEMORY_RAG.
 ### PostgreSQL Database (Port 5432)
 - Version 16 with pgvector extension
 - Vector similarity search support
-- Version 16 Alpine
+- Based on `pgvector/pgvector:pg16` Docker image
 - Credentials: busy/busy123
 - Database: busy_db
 
