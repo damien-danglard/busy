@@ -46,15 +46,16 @@ export async function storeMemory(
   
   // Validate embedding before constructing SQL
   validateEmbedding(embedding);
-  const embeddingString = `[${embedding.join(',')}]`;
-
-  // Store in database
-  const memory = await prisma.$queryRaw<Memory[]>`
-    INSERT INTO "Memory" (id, "userId", content, embedding, metadata, "createdAt", "updatedAt")
-    VALUES (gen_random_uuid(), ${userId}, ${content}, ${embeddingString}::vector, ${JSON.stringify(metadata || {})}::jsonb, NOW(), NOW())
-    RETURNING id, "userId", content, metadata, "createdAt", "updatedAt"
-  `;
-
+  // Store in database using parameterization for all values
+  const memory = await prisma.$queryRaw<Memory[]>(
+    `INSERT INTO "Memory" (id, "userId", content, embedding, metadata, "createdAt", "updatedAt")
+     VALUES (gen_random_uuid(), $1, $2, $3::vector, $4::jsonb, NOW(), NOW())
+     RETURNING id, "userId", content, metadata, "createdAt", "updatedAt"`,
+    userId,
+    content,
+    embedding, // Pass the array directly; Prisma will serialize it safely
+    JSON.stringify(metadata || {})
+  );
   return memory[0];
 }
 
