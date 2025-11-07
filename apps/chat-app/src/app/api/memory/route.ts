@@ -23,6 +23,13 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+    // Enforce maximum content length (e.g., 8000 characters)
+    if (content.length > 8000) {
+      return NextResponse.json(
+        { error: 'Content must not exceed 8000 characters' },
+        { status: 400 }
+      );
+    }
 
     const memory = await storeMemory(session.user.id, content, metadata);
 
