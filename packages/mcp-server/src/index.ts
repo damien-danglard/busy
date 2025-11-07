@@ -43,8 +43,26 @@ async function callChatAppAPI(
   const response = await fetch(url, options);
   
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-    throw new Error(`API call failed: ${response.status} - ${errorData.error || response.statusText}`);
+    let errorData: any = {};
+    const contentType = response.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      try {
+        errorData = await response.json();
+      } catch {
+        errorData = {};
+      }
+    } else {
+      // Try to get text body if not JSON
+      try {
+        errorData.error = await response.text();
+      } catch {
+        errorData.error = '';
+      }
+    }
+    throw new Error(
+      `API call failed: ${response.status} ${response.statusText}` +
+      (errorData.error ? ` - ${errorData.error}` : '')
+    );
   }
 
   return response.json();
