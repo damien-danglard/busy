@@ -78,9 +78,8 @@ export async function retrieveMemories(
   
   // Validate embedding before constructing SQL
   validateEmbedding(queryEmbedding);
-  const embeddingString = `[${queryEmbedding.join(',')}]`;
 
-  // Perform vector similarity search
+  // Perform vector similarity search using proper parameterization
   const memories = await prisma.$queryRaw<MemorySearchResult[]>`
     WITH memory_sim AS (
       SELECT 
@@ -90,7 +89,7 @@ export async function retrieveMemories(
         metadata, 
         "createdAt", 
         "updatedAt",
-        1 - (embedding <=> ${embeddingString}::vector) as similarity
+        1 - (embedding <=> ${queryEmbedding}::vector) as similarity
       FROM "Memory"
       WHERE "userId" = ${userId}
     )
@@ -118,13 +117,12 @@ export async function updateMemory(
   
   // Validate embedding before constructing SQL
   validateEmbedding(embedding);
-  const embeddingString = `[${embedding.join(',')}]`;
 
-  // Update the memory atomically (verify ownership in the UPDATE itself)
+  // Update the memory atomically using proper parameterization
   const updated = await prisma.$queryRaw<Memory[]>`
     UPDATE "Memory"
     SET content = ${content},
-        embedding = ${embeddingString}::vector,
+        embedding = ${embedding}::vector,
         metadata = ${JSON.stringify(metadata || {})}::jsonb,
         "updatedAt" = NOW()
     WHERE id = ${memoryId} AND "userId" = ${userId}
