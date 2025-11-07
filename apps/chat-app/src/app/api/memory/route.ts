@@ -24,9 +24,9 @@ export async function POST(request: NextRequest) {
 
     const { content, metadata } = await request.json();
 
-    if (!content || typeof content !== 'string') {
+    if (typeof content !== 'string' || content.length < 1) {
       return NextResponse.json(
-        { error: 'Content is required and must be a string' },
+        { error: 'Content is required and must be a non-empty string' },
         { status: 400 }
       );
     }
