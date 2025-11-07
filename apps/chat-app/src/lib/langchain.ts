@@ -49,7 +49,7 @@ This performs semantic search to find the most relevant memories.`,
           return 'No relevant memories found.';
         }
         const memoryTexts = memories.map((m, i) => 
-          `${i + 1}. ${m.content} (similarity: ${(m.similarity! * 100).toFixed(1)}%)`
+          `${i + 1}. ${m.content} (similarity: ${((m.similarity ?? 0) * 100).toFixed(1)}%)`
         ).join('\n');
         return `Found ${memories.length} relevant memories:\n${memoryTexts}`;
       } catch (error) {

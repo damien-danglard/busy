@@ -59,9 +59,12 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('query');
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const offset = parseInt(searchParams.get('offset') || '0');
-    const similarityThreshold = parseFloat(searchParams.get('threshold') || '0.7');
+    const limit = Math.max(1, Math.min(100, parseInt(searchParams.get('limit') || '10')));
+    const offset = Math.max(0, parseInt(searchParams.get('offset') || '0'));
+    
+    // Validate similarity threshold (must be between 0.0 and 1.0)
+    const thresholdParam = parseFloat(searchParams.get('threshold') || '0.7');
+    const similarityThreshold = Math.max(0.0, Math.min(1.0, isNaN(thresholdParam) ? 0.7 : thresholdParam));
 
     let memories;
 

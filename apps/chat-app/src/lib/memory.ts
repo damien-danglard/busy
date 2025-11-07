@@ -43,6 +43,11 @@ export async function storeMemory(
 
 /**
  * Retrieve relevant memories using semantic search
+ * @param userId - The user ID to retrieve memories for
+ * @param query - The search query text
+ * @param limit - Maximum number of memories to return (default: 5)
+ * @param similarityThreshold - Minimum cosine similarity score (0.0-1.0) for results (default: 0.7)
+ *                              Higher values = more strict matching, lower values = broader results
  */
 export async function retrieveMemories(
   userId: string,
