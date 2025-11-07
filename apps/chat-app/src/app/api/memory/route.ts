@@ -117,9 +117,9 @@ export async function PUT(request: NextRequest) {
 
     const { id, content, metadata } = await request.json();
 
-    if (!id || !content) {
+    if (!id || typeof content !== 'string' || content.length < 1 || content.length > 1000) {
       return NextResponse.json(
-        { error: 'Memory ID and content are required' },
+        { error: 'Memory ID and content (string, 1-1000 chars) are required' },
         { status: 400 }
       );
     }
