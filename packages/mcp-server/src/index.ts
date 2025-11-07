@@ -5,6 +5,9 @@ import {
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 
+// Chat app API base URL (can be configured via environment variable)
+const CHAT_APP_URL = process.env.CHAT_APP_URL || 'http://chat-app:3000';
+
 const server = new Server(
   {
     name: 'busy-mcp-server',
@@ -16,6 +19,36 @@ const server = new Server(
     },
   }
 );
+
+// Helper function to make authenticated API calls to chat-app
+async function callChatAppAPI(
+  endpoint: string,
+  method: string = 'GET',
+  body?: any,
+  headers?: Record<string, string>
+): Promise<any> {
+  const url = `${CHAT_APP_URL}${endpoint}`;
+  const options: RequestInit = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      ...headers,
+    },
+  };
+
+  if (body && method !== 'GET') {
+    options.body = JSON.stringify(body);
+  }
+
+  const response = await fetch(url, options);
+  
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(`API call failed: ${response.status} - ${errorData.error || response.statusText}`);
+  }
+
+  return response.json();
+}
 
 // List available tools
 server.setRequestHandler(ListToolsRequestSchema, async () => {
@@ -43,9 +76,98 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ['task'],
         },
       },
-      // Note: Memory tools (store_memory, retrieve_memories, update_memory) are
-      // implemented directly in the chat-app via LangChain agent tools.
-      // For n8n workflows, use the chat-app REST API at /api/memory endpoints.
+      {
+        name: 'store_memory',
+        description: 'Store a personal memory for a user. This creates a vector embedding for semantic search. Requires authentication token.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            content: {
+              type: 'string',
+              description: 'The memory content to store (max 8000 characters)',
+            },
+            metadata: {
+              type: 'object',
+              description: 'Optional metadata (category, tags, etc.)',
+            },
+            authToken: {
+              type: 'string',
+              description: 'Authentication token (next-auth session token)',
+            },
+          },
+          required: ['content', 'authToken'],
+        },
+      },
+      {
+        name: 'retrieve_memories',
+        description: 'Retrieve relevant memories for a user using semantic search. Requires authentication token.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            query: {
+              type: 'string',
+              description: 'The search query to find relevant memories',
+            },
+            limit: {
+              type: 'number',
+              description: 'Maximum number of memories to retrieve (default: 10, max: 100)',
+            },
+            threshold: {
+              type: 'number',
+              description: 'Minimum similarity threshold (0.0-1.0, default: 0.7)',
+            },
+            authToken: {
+              type: 'string',
+              description: 'Authentication token (next-auth session token)',
+            },
+          },
+          required: ['query', 'authToken'],
+        },
+      },
+      {
+        name: 'update_memory',
+        description: 'Update an existing memory for a user. Requires authentication token.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              description: 'The ID of the memory to update',
+            },
+            content: {
+              type: 'string',
+              description: 'The new memory content (max 8000 characters)',
+            },
+            metadata: {
+              type: 'object',
+              description: 'Optional metadata',
+            },
+            authToken: {
+              type: 'string',
+              description: 'Authentication token (next-auth session token)',
+            },
+          },
+          required: ['id', 'content', 'authToken'],
+        },
+      },
+      {
+        name: 'delete_memory',
+        description: 'Delete a memory for a user. Requires authentication token.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              description: 'The ID of the memory to delete',
+            },
+            authToken: {
+              type: 'string',
+              description: 'Authentication token (next-auth session token)',
+            },
+          },
+          required: ['id', 'authToken'],
+        },
+      },
     ],
   };
 });
@@ -81,6 +203,174 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           },
         ],
       };
+
+    case 'store_memory':
+      try {
+        const { content, metadata, authToken } = args as {
+          content: string;
+          metadata?: Record<string, unknown>;
+          authToken: string;
+        };
+
+        const result = await callChatAppAPI(
+          '/api/memory',
+          'POST',
+          { content, metadata },
+          { Cookie: `next-auth.session-token=${authToken}` }
+        );
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                success: true,
+                memory: result.memory,
+                message: 'Memory stored successfully',
+              }),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                success: false,
+                error: error instanceof Error ? error.message : 'Failed to store memory',
+              }),
+            },
+          ],
+        };
+      }
+
+    case 'retrieve_memories':
+      try {
+        const { query, limit, threshold, authToken } = args as {
+          query: string;
+          limit?: number;
+          threshold?: number;
+          authToken: string;
+        };
+
+        const params = new URLSearchParams({ query });
+        if (limit) params.append('limit', String(limit));
+        if (threshold) params.append('threshold', String(threshold));
+
+        const result = await callChatAppAPI(
+          `/api/memory?${params.toString()}`,
+          'GET',
+          undefined,
+          { Cookie: `next-auth.session-token=${authToken}` }
+        );
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                success: true,
+                memories: result.memories,
+                count: result.count,
+              }),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                success: false,
+                error: error instanceof Error ? error.message : 'Failed to retrieve memories',
+              }),
+            },
+          ],
+        };
+      }
+
+    case 'update_memory':
+      try {
+        const { id, content, metadata, authToken } = args as {
+          id: string;
+          content: string;
+          metadata?: Record<string, unknown>;
+          authToken: string;
+        };
+
+        const result = await callChatAppAPI(
+          '/api/memory',
+          'PUT',
+          { id, content, metadata },
+          { Cookie: `next-auth.session-token=${authToken}` }
+        );
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                success: true,
+                memory: result.memory,
+                message: 'Memory updated successfully',
+              }),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                success: false,
+                error: error instanceof Error ? error.message : 'Failed to update memory',
+              }),
+            },
+          ],
+        };
+      }
+
+    case 'delete_memory':
+      try {
+        const { id, authToken } = args as {
+          id: string;
+          authToken: string;
+        };
+
+        const result = await callChatAppAPI(
+          `/api/memory?id=${id}`,
+          'DELETE',
+          undefined,
+          { Cookie: `next-auth.session-token=${authToken}` }
+        );
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                success: true,
+                message: result.message || 'Memory deleted successfully',
+              }),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                success: false,
+                error: error instanceof Error ? error.message : 'Failed to delete memory',
+              }),
+            },
+          ],
+        };
+      }
 
     default:
       throw new Error(`Unknown tool: ${name}`);

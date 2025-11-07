@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { storeMemory, retrieveMemories, updateMemory, deleteMemory, listMemories } from '@/lib/memory';
 
+// Memory API constraints
+const MAX_CONTENT_LENGTH = 8000; // Maximum characters for memory content (OpenAI token limit consideration)
+const MAX_MEMORY_LIMIT = 100; // Maximum number of memories to return per request
+const MAX_MEMORY_OFFSET = 10000; // Maximum offset for pagination to prevent resource exhaustion
+const DEFAULT_LIMIT = 10; // Default number of memories to return
+const DEFAULT_SIMILARITY_THRESHOLD = 0.7; // Default minimum similarity score for memory retrieval
+
 /**
  * POST /api/memory - Store a new memory
  */
@@ -23,10 +30,10 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    // Enforce maximum content length (e.g., 8000 characters)
-    if (content.length > 8000) {
+    // Enforce maximum content length
+    if (content.length > MAX_CONTENT_LENGTH) {
       return NextResponse.json(
-        { error: 'Content must not exceed 8000 characters' },
+        { error: `Content must not exceed ${MAX_CONTENT_LENGTH} characters` },
         { status: 400 }
       );
     }
@@ -66,13 +73,13 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('query');
-    const limitParam = parseInt(searchParams.get('limit') || '10');
-    const limit = isNaN(limitParam) ? 10 : Math.max(1, Math.min(100, limitParam));
+    const limitParam = parseInt(searchParams.get('limit') || String(DEFAULT_LIMIT));
+    const limit = isNaN(limitParam) ? DEFAULT_LIMIT : Math.max(1, Math.min(MAX_MEMORY_LIMIT, limitParam));
     const offsetParam = parseInt(searchParams.get('offset') || '0');
-    const offset = isNaN(offsetParam) ? 0 : Math.max(0, Math.min(10000, offsetParam));
+    const offset = isNaN(offsetParam) ? 0 : Math.max(0, Math.min(MAX_MEMORY_OFFSET, offsetParam));
     // Validate similarity threshold (must be between 0.0 and 1.0)
-    const thresholdParam = parseFloat(searchParams.get('threshold') || '0.7');
-    const similarityThreshold = Math.max(0.0, Math.min(1.0, isNaN(thresholdParam) ? 0.7 : thresholdParam));
+    const thresholdParam = parseFloat(searchParams.get('threshold') || String(DEFAULT_SIMILARITY_THRESHOLD));
+    const similarityThreshold = Math.max(0.0, Math.min(1.0, isNaN(thresholdParam) ? DEFAULT_SIMILARITY_THRESHOLD : thresholdParam));
 
     let memories;
 
@@ -118,9 +125,9 @@ export async function PUT(request: NextRequest) {
 
     const { id, content, metadata } = await request.json();
 
-    if (!id || typeof content !== 'string' || content.length < 1 || content.length > 8000) {
+    if (!id || typeof content !== 'string' || content.length < 1 || content.length > MAX_CONTENT_LENGTH) {
       return NextResponse.json(
-        { error: 'Memory ID and content (string, 1-8000 chars) are required' },
+        { error: `Memory ID and content (string, 1-${MAX_CONTENT_LENGTH} chars) are required` },
         { status: 400 }
       );
     }
