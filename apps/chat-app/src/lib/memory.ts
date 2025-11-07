@@ -82,18 +82,22 @@ export async function retrieveMemories(
 
   // Perform vector similarity search
   const memories = await prisma.$queryRaw<MemorySearchResult[]>`
-    SELECT 
-      id, 
-      "userId", 
-      content, 
-      metadata, 
-      "createdAt", 
-      "updatedAt",
-      1 - (embedding <=> ${embeddingString}::vector) as similarity
-    FROM "Memory"
-    WHERE "userId" = ${userId}
-    AND 1 - (embedding <=> ${embeddingString}::vector) > ${similarityThreshold}
-    ORDER BY embedding <=> ${embeddingString}::vector
+    WITH memory_sim AS (
+      SELECT 
+        id, 
+        "userId", 
+        content, 
+        metadata, 
+        "createdAt", 
+        "updatedAt",
+        1 - (embedding <=> ${embeddingString}::vector) as similarity
+      FROM "Memory"
+      WHERE "userId" = ${userId}
+    )
+    SELECT *
+    FROM memory_sim
+    WHERE similarity > ${similarityThreshold}
+    ORDER BY similarity DESC
     LIMIT ${limit}
   `;
 
