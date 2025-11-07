@@ -39,7 +39,8 @@ next-env.d.ts
 Thumbs.db
 
 # Prisma
-prisma/migrations/
+# Note: We include migrations in version control for deployment
+# prisma/migrations/
 
 # n8n
 .n8n/

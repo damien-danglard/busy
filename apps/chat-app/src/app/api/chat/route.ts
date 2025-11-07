@@ -23,8 +23,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get response from LangChain
-    const response = await chatWithLangChain(messages);
+    // Get response from LangChain with user context
+    const response = await chatWithLangChain(messages, session.user.id);
 
     // Store messages in database
     await prisma.message.create({
