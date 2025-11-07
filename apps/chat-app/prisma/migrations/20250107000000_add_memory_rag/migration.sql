@@ -2,8 +2,8 @@
 CREATE EXTENSION IF NOT EXISTS vector;
 
 -- CreateTable
--- Note: Vector dimension (1536) matches OpenAI's text-embedding-ada-002 model
--- If changing embedding models, update this dimension accordingly
+-- Note: Vector dimension (1536) matches OpenAI's text-embedding-3-small model
+-- If changing embedding models, update this dimension accordingly (text-embedding-3-small default: 1536)
 CREATE TABLE "Memory" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
