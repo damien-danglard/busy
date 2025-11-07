@@ -126,7 +126,7 @@ Be proactive in using these tools to provide a personalized experience.`,
   const agentExecutor = new AgentExecutor({
     agent,
     tools,
-    verbose: false,
+    verbose: process.env.LANGCHAIN_VERBOSE === 'true',
   });
 
   // Convert messages to chat history (exclude the last user message as it's the input)
