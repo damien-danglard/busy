@@ -41,6 +41,10 @@ export default function Home() {
         setMessages([...newMessages, { role: 'assistant', content: data.message }]);
       } else if (response.status === 401) {
         router.push('/login');
+      } else {
+        // Handle other error responses and provide user feedback
+        const errorMsg = data?.error || 'An error occurred. Please try again later.';
+        setMessages([...newMessages, { role: 'assistant', content: errorMsg }]);
       }
     } catch (error) {
       console.error('Error sending message:', error);
