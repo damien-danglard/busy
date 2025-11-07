@@ -125,9 +125,27 @@ export async function PUT(request: NextRequest) {
 
     const { id, content, metadata } = await request.json();
 
-    if (!id || typeof content !== 'string' || content.length < 1 || content.length > MAX_CONTENT_LENGTH) {
+    if (!id) {
       return NextResponse.json(
-        { error: `Memory ID and content (string, 1-${MAX_CONTENT_LENGTH} chars) are required` },
+        { error: 'Memory ID is required' },
+        { status: 400 }
+      );
+    }
+    if (typeof content !== 'string') {
+      return NextResponse.json(
+        { error: 'Memory content must be a string' },
+        { status: 400 }
+      );
+    }
+    if (content.length < 1) {
+      return NextResponse.json(
+        { error: 'Memory content must not be empty' },
+        { status: 400 }
+      );
+    }
+    if (content.length > MAX_CONTENT_LENGTH) {
+      return NextResponse.json(
+        { error: `Memory content exceeds maximum length of ${MAX_CONTENT_LENGTH} characters` },
         { status: 400 }
       );
     }
