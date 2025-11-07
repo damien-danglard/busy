@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
     const limitParam = parseInt(searchParams.get('limit') || '10');
     const limit = isNaN(limitParam) ? 10 : Math.max(1, Math.min(100, limitParam));
     const offsetParam = parseInt(searchParams.get('offset') || '0');
-    const offset = isNaN(offsetParam) ? 0 : Math.max(0, offsetParam);
+    const offset = isNaN(offsetParam) ? 0 : Math.max(0, Math.min(10000, offsetParam));
     // Validate similarity threshold (must be between 0.0 and 1.0)
     const thresholdParam = parseFloat(searchParams.get('threshold') || '0.7');
     const similarityThreshold = Math.max(0.0, Math.min(1.0, isNaN(thresholdParam) ? 0.7 : thresholdParam));
@@ -118,9 +118,9 @@ export async function PUT(request: NextRequest) {
 
     const { id, content, metadata } = await request.json();
 
-    if (!id || typeof content !== 'string' || content.length < 1 || content.length > 1000) {
+    if (!id || typeof content !== 'string' || content.length < 1 || content.length > 8000) {
       return NextResponse.json(
-        { error: 'Memory ID and content (string, 1-1000 chars) are required' },
+        { error: 'Memory ID and content (string, 1-8000 chars) are required' },
         { status: 400 }
       );
     }

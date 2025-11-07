@@ -1,6 +1,11 @@
 import { prisma } from './prisma';
 import { OpenAIEmbeddings } from '@langchain/openai';
 
+// Validate OpenAI API key at startup
+if (!process.env.OPENAI_API_KEY) {
+  throw new Error('OPENAI_API_KEY environment variable is required for memory embeddings');
+}
+
 const embeddings = new OpenAIEmbeddings({
   openAIApiKey: process.env.OPENAI_API_KEY,
   modelName: 'text-embedding-3-small',
@@ -10,7 +15,7 @@ export interface Memory {
   id: string;
   userId: string;
   content: string;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -20,15 +25,27 @@ export interface MemorySearchResult extends Memory {
 }
 
 /**
+ * Validate that embedding values are finite numbers
+ */
+function validateEmbedding(embedding: number[]): void {
+  if (!embedding.every(val => Number.isFinite(val))) {
+    throw new Error('Invalid embedding: contains non-finite values (NaN or Infinity)');
+  }
+}
+
+/**
  * Store a new memory with vector embedding
  */
 export async function storeMemory(
   userId: string,
   content: string,
-  metadata?: any
+  metadata?: Record<string, unknown>
 ): Promise<Memory> {
   // Generate embedding for the content
   const embedding = await embeddings.embedQuery(content);
+  
+  // Validate embedding before constructing SQL
+  validateEmbedding(embedding);
   const embeddingString = `[${embedding.join(',')}]`;
 
   // Store in database
@@ -57,6 +74,9 @@ export async function retrieveMemories(
 ): Promise<MemorySearchResult[]> {
   // Generate embedding for the query
   const queryEmbedding = await embeddings.embedQuery(query);
+  
+  // Validate embedding before constructing SQL
+  validateEmbedding(queryEmbedding);
   const embeddingString = `[${queryEmbedding.join(',')}]`;
 
   // Perform vector similarity search
@@ -86,22 +106,16 @@ export async function updateMemory(
   memoryId: string,
   userId: string,
   content: string,
-  metadata?: any
+  metadata?: Record<string, unknown>
 ): Promise<Memory | null> {
-  // Verify the memory belongs to the user
-  const existing = await prisma.memory.findFirst({
-    where: { id: memoryId, userId },
-  });
-
-  if (!existing) {
-    return null;
-  }
-
   // Generate new embedding for updated content
   const embedding = await embeddings.embedQuery(content);
+  
+  // Validate embedding before constructing SQL
+  validateEmbedding(embedding);
   const embeddingString = `[${embedding.join(',')}]`;
 
-  // Update the memory
+  // Update the memory atomically (verify ownership in the UPDATE itself)
   const updated = await prisma.$queryRaw<Memory[]>`
     UPDATE "Memory"
     SET content = ${content},

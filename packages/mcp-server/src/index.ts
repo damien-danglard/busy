@@ -43,76 +43,9 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ['task'],
         },
       },
-      {
-        name: 'store_memory',
-        description: 'Store a personal memory for a user. This creates a vector embedding for semantic search.',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            userId: {
-              type: 'string',
-              description: 'The user ID to store the memory for',
-            },
-            content: {
-              type: 'string',
-              description: 'The memory content to store',
-            },
-            metadata: {
-              type: 'object',
-              description: 'Optional metadata (category, tags, etc.)',
-            },
-          },
-          required: ['userId', 'content'],
-        },
-      },
-      {
-        name: 'retrieve_memories',
-        description: 'Retrieve relevant memories for a user using semantic search',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            userId: {
-              type: 'string',
-              description: 'The user ID to retrieve memories for',
-            },
-            query: {
-              type: 'string',
-              description: 'The search query to find relevant memories',
-            },
-            limit: {
-              type: 'number',
-              description: 'Maximum number of memories to retrieve (default: 5)',
-            },
-          },
-          required: ['userId', 'query'],
-        },
-      },
-      {
-        name: 'update_memory',
-        description: 'Update an existing memory for a user',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            memoryId: {
-              type: 'string',
-              description: 'The ID of the memory to update',
-            },
-            userId: {
-              type: 'string',
-              description: 'The user ID (for authorization)',
-            },
-            content: {
-              type: 'string',
-              description: 'The new memory content',
-            },
-            metadata: {
-              type: 'object',
-              description: 'Optional metadata',
-            },
-          },
-          required: ['memoryId', 'userId', 'content'],
-        },
-      },
+      // Note: Memory tools (store_memory, retrieve_memories, update_memory) are
+      // implemented directly in the chat-app via LangChain agent tools.
+      // For n8n workflows, use the chat-app REST API at /api/memory endpoints.
     ],
   };
 });
@@ -144,24 +77,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
               task: args?.task,
               status: 'completed',
               result: 'Task executed successfully',
-            }),
-          },
-        ],
-      };
-
-    case 'store_memory':
-    case 'retrieve_memories':
-    case 'update_memory':
-      // These tools proxy to the chat-app API
-      return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify({
-              tool: name,
-              message: 'Memory tools are available via the chat-app API at /api/memory',
-              note: 'Call the chat-app API directly for memory operations',
-              args,
             }),
           },
         ],

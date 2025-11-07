@@ -28,7 +28,8 @@ Example: If user says "I love playing guitar on weekends", store as "User enjoys
         return `Memory stored successfully: "${content}"`;
       } catch (error) {
         console.error('Error storing memory:', error);
-        return 'Failed to store memory';
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        return `Failed to store memory: ${errorMessage}`;
       }
     },
   });
@@ -40,7 +41,7 @@ Use this when you need to recall information about the user to provide personali
 This performs semantic search to find the most relevant memories.`,
     schema: z.object({
       query: z.string().describe('What to search for in the memories'),
-      limit: z.number().optional().default(5).describe('Maximum number of memories to retrieve'),
+      limit: z.number().optional().describe('Maximum number of memories to retrieve'),
     }),
     func: async ({ query, limit = 5 }) => {
       try {
@@ -54,7 +55,8 @@ This performs semantic search to find the most relevant memories.`,
         return `Found ${memories.length} relevant memories:\n${memoryTexts}`;
       } catch (error) {
         console.error('Error retrieving memories:', error);
-        return 'Failed to retrieve memories';
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        return `Failed to retrieve memories: ${errorMessage}`;
       }
     },
   });
