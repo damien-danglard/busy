@@ -69,6 +69,10 @@ export async function chatWithLangChain(
   messages: Array<{ role: string; content: string }>,
   userId: string
 ) {
+  // Validate userId
+  if (typeof userId !== 'string' || userId.trim().length === 0) {
+    throw new Error('Invalid userId: must be a non-empty string');
+  }
   const model = new ChatOpenAI({
     modelName: 'gpt-3.5-turbo',
     temperature: 0.7,
