@@ -104,6 +104,42 @@ Busy is a monorepo containing a Next.js chat application with LangChain, n8n wor
 - Keep README.md and docs/ folder in sync
 - Add entries to `docs/CHANGELOG.md` for user-facing changes
 - Use clear, concise language in documentation
+- Update Gherkin feature specifications when adding or modifying features
+- See `.github/instructions/GHERKIN.instructions.md` for feature file guidelines
+
+## Feature Specifications
+
+**IMPORTANT**: All features must be documented in Gherkin format.
+
+- Feature files are located in `docs/features/` directory
+- Use Gherkin syntax (Given-When-Then) for all scenarios
+- Update feature files when adding or modifying functionality
+- Create new `.feature` files for new features
+- Keep scenarios focused, testable, and from user perspective
+- See `.github/instructions/GHERKIN.instructions.md` for detailed guidelines
+
+### When to Update Features:
+
+1. **New Feature**: Create new `.feature` file with scenarios
+2. **Modified Behavior**: Update affected scenarios in existing files
+3. **Bug Fix**: Add regression test scenario
+4. **Refactoring**: Update only if user-facing behavior changes
+
+### Example Feature Scenario:
+
+```gherkin
+Feature: AI Chat Conversation
+  As a logged-in user
+  I want to chat with an AI assistant
+  So that I can get help with my tasks
+
+  Scenario: Send a message to the AI
+    Given I am logged in and on the chat page
+    When I type "Hello" in the message input
+    And I click the send button
+    Then I should see my message displayed
+    And I should receive an AI response
+```
 
 ## Security Best Practices
 
@@ -119,10 +155,16 @@ Busy is a monorepo containing a Next.js chat application with LangChain, n8n wor
 - Write clear, descriptive commit messages
 - Use conventional commit format: `type(scope): description`
   - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `ci`
-  - Scope (optional): `chat-app`, `mcp-server`
+  - Scope (optional): `chat-app`, `mcp-server`, `features`
   - Description: Short description of changes
+  - Examples:
+    - `feat(chat-app): add message streaming support`
+    - `fix(memory): correct vector similarity search query`
+    - `docs(features): add authentication scenarios`
+    - `refactor: simplify error handling in API routes`
 - Keep commits focused and atomic
 - Reference issue numbers in commits when applicable
+- Include feature file updates in the same commit as code changes
 
 ## Environment Variables
 
@@ -208,10 +250,32 @@ const results = await prisma.$queryRaw(
 - [Project Documentation](./docs/README.md)
 - [Architecture](./docs/ARCHITECTURE.md)
 - [Contributing Guide](./docs/CONTRIBUTING.md)
+- [Feature Specifications](./docs/features/README.md)
+- [Gherkin Guidelines](./.github/instructions/GHERKIN.instructions.md)
+- [Prisma Guidelines](./.github/instructions/PRISMA.instructions.md)
+- [NPM Guidelines](./.github/instructions/NPM.instructions.md)
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Prisma Documentation](https://www.prisma.io/docs)
 - [LangChain Documentation](https://js.langchain.com/)
 
+## Workflow Summary
+
+When implementing a new feature:
+
+1. **Check Feature Files**: Review existing scenarios in `docs/features/`
+2. **Write Code**: Implement feature following guidelines above
+3. **Update/Create Feature File**: Document behavior in Gherkin format
+4. **Test**: Ensure all scenarios are satisfied
+5. **Update Docs**: Update README.md or relevant documentation
+6. **Commit**: Use conventional commits with feature file updates included
+
+When fixing a bug:
+
+1. **Add Scenario**: Create a scenario that reproduces the bug in relevant `.feature` file
+2. **Fix Code**: Implement the fix
+3. **Verify**: Ensure the scenario now passes
+4. **Commit**: Include both code fix and feature scenario update
+
 ---
 
-**Remember**: When in doubt, prioritize code clarity and maintainability over cleverness. Write code that others (and future you) can easily understand and maintain.
+**Remember**: When in doubt, prioritize code clarity and maintainability over cleverness. Write code that others (and future you) can easily understand and maintain. Keep feature files in sync with your code changes.
