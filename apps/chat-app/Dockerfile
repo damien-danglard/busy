@@ -7,7 +7,7 @@ WORKDIR /app
 
 # Copy package files
 COPY apps/chat-app/package*.json ./
-RUN npm ci --only=production
+RUN npm install --only=production
 
 FROM base AS builder
 WORKDIR /app

@@ -73,8 +73,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      mcp-server:
-        condition: service_started
+#      mcp-server:
+#        condition: service_started
       migration:
         condition: service_completed_successfully
 
