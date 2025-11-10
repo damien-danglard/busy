@@ -26,11 +26,23 @@ Manual edits to migration files can:
 
 ## Workflow
 
+**IMPORTANT**: Every modification to `schema.prisma` MUST be followed by:
+
 1. Update your `schema.prisma` file with the desired changes
-2. Run `npx prisma migrate dev --name descriptive_name` to generate the migration
+2. **Immediately run** `npx prisma migrate dev --name descriptive_name` to generate the migration
 3. Review the generated SQL in the migration file
 4. Test the migration locally
-5. Commit both the schema and migration files together
+5. **Always commit both** the `schema.prisma` file AND the generated SQL migration file in `prisma/migrations/` directory together
+6. Use `git add prisma/schema.prisma prisma/migrations/` to stage all migration-related changes
+
+## Critical Rule
+
+**Never modify `schema.prisma` without generating and committing the corresponding migration.**
+Any change to the database schema without a migration will cause:
+- Database state inconsistencies between environments
+- Deployment failures
+- Data loss risks
+- Team synchronization issues
 
 ## Exceptions
 
