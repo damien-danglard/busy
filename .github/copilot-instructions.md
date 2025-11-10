@@ -118,7 +118,9 @@ Busy is a monorepo containing a Next.js chat application with LangChain, n8n wor
 
 - Write clear, descriptive commit messages
 - Use conventional commit format: `type(scope): description`
-  - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
+  - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `ci`
+  - Scope (optional): `chat-app`, `mcp-server`
+  - Description: Short description of changes
 - Keep commits focused and atomic
 - Reference issue numbers in commits when applicable
 
