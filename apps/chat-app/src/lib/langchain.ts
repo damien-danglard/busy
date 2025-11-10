@@ -126,7 +126,7 @@ Be proactive in using these tools to provide a personalized experience.`);
   const allMessages = [systemMessage, ...chatHistory];
 
   // Execute the model
-  const result = await model.invoke(allMessages);
+  const result = await model.bindTools(tools).invoke(allMessages);
 
   return result.content.toString();
 }
