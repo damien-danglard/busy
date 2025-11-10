@@ -1,3 +1,7 @@
+---
+applyTo: "docs/features/*.feature"
+---
+
 # Gherkin Feature Specifications Guidelines
 
 This document provides instructions for maintaining and creating Gherkin feature specifications in the Busy project.
