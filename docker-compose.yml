@@ -21,9 +21,7 @@ services:
 
   # n8n Workflow Automation
   n8n:
-    build:
-      context: .
-      dockerfile: apps/n8n/Dockerfile
+    image: docker.n8n.io/n8nio/n8n
     container_name: busy-n8n
     restart: unless-stopped
     ports:
@@ -40,7 +38,7 @@ services:
       - WEBHOOK_URL=http://n8n:5678/
       - GENERIC_TIMEZONE=UTC
     volumes:
-      - ./datat/n8n:/home/node/.n8n
+      - ./data/n8n:/home/node/.n8n
     depends_on:
       postgres:
         condition: service_healthy
