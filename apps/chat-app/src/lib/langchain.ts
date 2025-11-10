@@ -1,4 +1,4 @@
-import { ChatOpenAI } from '@langchain/openai';
+import { AzureChatOpenAI } from '@langchain/openai';
 import { HumanMessage, AIMessage, SystemMessage } from '@langchain/core/messages';
 import { DynamicStructuredTool } from '@langchain/core/tools';
 import { z } from 'zod';
@@ -73,10 +73,12 @@ export async function chatWithLangChain(
   if (typeof userId !== 'string' || userId.trim().length === 0) {
     throw new Error('Invalid userId: must be a non-empty string');
   }
-  const model = new ChatOpenAI({
-    modelName: 'gpt-3.5-turbo',
+  const model = new AzureChatOpenAI({
+    azureOpenAIApiKey: process.env.AZURE_OPENAI_API_KEY,
+    azureOpenAIApiInstanceName: 'oaixrpdev001',
+    azureOpenAIApiDeploymentName: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4o',
+    azureOpenAIApiVersion: process.env.AZURE_OPENAI_API_VERSION || '2024-02-15-preview',
     temperature: 0.7,
-    openAIApiKey: process.env.OPENAI_API_KEY,
   });
 
   const tools = createMemoryTools(userId);

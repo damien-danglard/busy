@@ -1,18 +1,20 @@
 import { prisma } from './prisma';
 import { Prisma } from '@prisma/client';
-import { OpenAIEmbeddings } from '@langchain/openai';
+import { AzureOpenAIEmbeddings } from '@langchain/openai';
 
 // Lazy initialize embeddings to avoid build-time errors
-let embeddings: OpenAIEmbeddings | null = null;
+let embeddings: AzureOpenAIEmbeddings | null = null;
 
-function getEmbeddings(): OpenAIEmbeddings {
+function getEmbeddings(): AzureOpenAIEmbeddings {
   if (!embeddings) {
-    if (!process.env.OPENAI_API_KEY) {
-      throw new Error('OPENAI_API_KEY environment variable is required for memory embeddings');
+    if (!process.env.AZURE_OPENAI_API_KEY) {
+      throw new Error('AZURE_OPENAI_API_KEY environment variable is required for memory embeddings');
     }
-    embeddings = new OpenAIEmbeddings({
-      openAIApiKey: process.env.OPENAI_API_KEY,
-      modelName: 'text-embedding-3-small',
+    embeddings = new AzureOpenAIEmbeddings({
+      azureOpenAIApiKey: process.env.AZURE_OPENAI_API_KEY,
+      azureOpenAIApiInstanceName: 'oaixrpdev001',
+      azureOpenAIApiDeploymentName: process.env.AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME || 'text-embedding-3-large',
+      azureOpenAIApiVersion: process.env.AZURE_OPENAI_API_VERSION || '2024-02-15-preview',
     });
   }
   return embeddings;
