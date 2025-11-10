@@ -75,7 +75,7 @@ export async function chatWithLangChain(
   }
   const model = new AzureChatOpenAI({
     azureOpenAIApiKey: process.env.AZURE_OPENAI_API_KEY,
-    azureOpenAIApiInstanceName: 'oaixrpdev001',
+    azureOpenAIApiInstanceName: process.env.AZURE_OPENAI_INSTANCE_NAME || 'oaixrpdev001',
     azureOpenAIApiDeploymentName: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4o',
     azureOpenAIApiVersion: process.env.AZURE_OPENAI_API_VERSION || '2024-02-15-preview',
     temperature: 0.7,

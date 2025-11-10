@@ -12,7 +12,7 @@ function getEmbeddings(): AzureOpenAIEmbeddings {
     }
     embeddings = new AzureOpenAIEmbeddings({
       azureOpenAIApiKey: process.env.AZURE_OPENAI_API_KEY,
-      azureOpenAIApiInstanceName: 'oaixrpdev001',
+      azureOpenAIApiInstanceName: process.env.AZURE_OPENAI_INSTANCE_NAME || 'oaixrpdev001',
       azureOpenAIApiDeploymentName: process.env.AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME || 'text-embedding-3-large',
       azureOpenAIApiVersion: process.env.AZURE_OPENAI_API_VERSION || '2024-02-15-preview',
     });
