@@ -12,7 +12,7 @@ RUN npm ci --only=production
 FROM base AS builder
 WORKDIR /app
 COPY apps/chat-app/package*.json ./
-RUN npm ci
+RUN npm install
 COPY apps/chat-app ./
 
 # Generate Prisma Client

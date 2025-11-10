@@ -1,15 +1,22 @@
 import { prisma } from './prisma';
+import { Prisma } from '@prisma/client';
 import { OpenAIEmbeddings } from '@langchain/openai';
 
-// Validate OpenAI API key at startup
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error('OPENAI_API_KEY environment variable is required for memory embeddings');
-}
+// Lazy initialize embeddings to avoid build-time errors
+let embeddings: OpenAIEmbeddings | null = null;
 
-const embeddings = new OpenAIEmbeddings({
-  openAIApiKey: process.env.OPENAI_API_KEY,
-  modelName: 'text-embedding-3-small',
-});
+function getEmbeddings(): OpenAIEmbeddings {
+  if (!embeddings) {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error('OPENAI_API_KEY environment variable is required for memory embeddings');
+    }
+    embeddings = new OpenAIEmbeddings({
+      openAIApiKey: process.env.OPENAI_API_KEY,
+      modelName: 'text-embedding-3-small',
+    });
+  }
+  return embeddings;
+}
 
 export interface Memory {
   id: string;
@@ -42,19 +49,15 @@ export async function storeMemory(
   metadata?: Record<string, unknown>
 ): Promise<Memory> {
   // Generate embedding for the content
-  const embedding = await embeddings.embedQuery(content);
+  const embedding = await getEmbeddings().embedQuery(content);
   
   // Validate embedding before constructing SQL
   validateEmbedding(embedding);
-  // Store in database using parameterization for all values
+  // Store in database using Prisma.sql for safe query
   const memory = await prisma.$queryRaw<Memory[]>(
-    `INSERT INTO "Memory" (id, "userId", content, embedding, metadata, "createdAt", "updatedAt")
-     VALUES (gen_random_uuid(), $1, $2, $3::vector, $4::jsonb, NOW(), NOW())
-     RETURNING id, "userId", content, metadata, "createdAt", "updatedAt"`,
-    userId,
-    content,
-    embedding, // Pass the array directly; Prisma will serialize it safely
-    JSON.stringify(metadata || {})
+    Prisma.sql`INSERT INTO "Memory" (id, "userId", content, embedding, metadata, "createdAt", "updatedAt")
+     VALUES (gen_random_uuid(), ${userId}, ${content}, ${JSON.stringify(embedding)}::vector, ${JSON.stringify(metadata || {})}::jsonb, NOW(), NOW())
+     RETURNING id, "userId", content, metadata, "createdAt", "updatedAt"`
   );
   return memory[0];
 }
@@ -74,13 +77,14 @@ export async function retrieveMemories(
   similarityThreshold: number = 0.7
 ): Promise<MemorySearchResult[]> {
   // Generate embedding for the query
-  const queryEmbedding = await embeddings.embedQuery(query);
+  const queryEmbedding = await getEmbeddings().embedQuery(query);
   
   // Validate embedding before constructing SQL
   validateEmbedding(queryEmbedding);
 
-  // Perform vector similarity search using proper parameterization
-  const memories = await prisma.$queryRaw<MemorySearchResult[]>`
+  // Perform vector similarity search using Prisma.sql
+  const memories = await prisma.$queryRaw<MemorySearchResult[]>(
+    Prisma.sql`
     WITH memory_sim AS (
       SELECT 
         id, 
@@ -89,7 +93,7 @@ export async function retrieveMemories(
         metadata, 
         "createdAt", 
         "updatedAt",
-        1 - (embedding <=> ${queryEmbedding}::vector) as similarity
+        1 - (embedding <=> ${JSON.stringify(queryEmbedding)}::vector) as similarity
       FROM "Memory"
       WHERE "userId" = ${userId}
     )
@@ -98,7 +102,8 @@ export async function retrieveMemories(
     WHERE similarity > ${similarityThreshold}
     ORDER BY similarity DESC
     LIMIT ${limit}
-  `;
+  `
+  );
 
   return memories;
 }
@@ -113,7 +118,7 @@ export async function updateMemory(
   metadata?: Record<string, unknown>
 ): Promise<Memory | null> {
   // Generate new embedding for updated content
-  const embedding = await embeddings.embedQuery(content);
+  const embedding = await getEmbeddings().embedQuery(content);
   
   // Validate embedding before constructing SQL
   validateEmbedding(embedding);
@@ -154,7 +159,7 @@ export async function listMemories(
   limit: number = 50,
   offset: number = 0
 ): Promise<Memory[]> {
-  return prisma.memory.findMany({
+  const results = await prisma.memory.findMany({
     where: { userId },
     orderBy: { createdAt: 'desc' },
     take: limit,
@@ -168,4 +173,9 @@ export async function listMemories(
       updatedAt: true,
     },
   });
+
+  return results.map(r => ({
+    ...r,
+    metadata: (r.metadata as Record<string, unknown>) || undefined,
+  }));
 }
