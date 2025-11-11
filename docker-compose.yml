@@ -44,16 +44,16 @@ services:
         condition: service_healthy
 
   # MCP Server
-  mcp-server:
-    build:
-      context: .
-      dockerfile: packages/mcp-server/Dockerfile
-    container_name: busy-mcp-server
-    restart: unless-stopped
-    ports:
-      - "3001:3001"
-    environment:
-      - NODE_ENV=production
+#  mcp-server:
+#    build:
+#      context: .
+#      dockerfile: packages/mcp-server/Dockerfile
+#    container_name: busy-mcp-server
+#    restart: unless-stopped
+#    ports:
+#      - "3001:3001"
+#    environment:
+#      - NODE_ENV=production
 
   # Next.js Chat Application
   chat-app:
