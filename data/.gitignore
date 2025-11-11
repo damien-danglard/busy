@@ -1,0 +1,5 @@
+# Ignore all files in this directory (Docker volumes data)
+*
+
+# Except this .gitignore file
+!.gitignore

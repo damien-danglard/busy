@@ -6,13 +6,13 @@ WORKDIR /app
 
 # Copy package files
 COPY packages/mcp-server/package*.json ./
-RUN npm ci --only=production
+RUN npm install --only=production
 
 # Build the application
 FROM base AS builder
 WORKDIR /app
 COPY packages/mcp-server/package*.json ./
-RUN npm ci
+RUN npm install
 COPY packages/mcp-server ./
 
 RUN npm run build

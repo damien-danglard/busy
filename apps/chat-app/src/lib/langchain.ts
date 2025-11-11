@@ -1,8 +1,6 @@
-import { ChatOpenAI } from '@langchain/openai';
-import { HumanMessage, AIMessage, SystemMessage } from 'langchain/schema';
-import { DynamicStructuredTool } from 'langchain/tools';
-import { AgentExecutor, createOpenAIFunctionsAgent } from 'langchain/agents';
-import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts';
+import { AzureChatOpenAI } from '@langchain/openai';
+import { HumanMessage, AIMessage, SystemMessage } from '@langchain/core/messages';
+import { DynamicStructuredTool } from '@langchain/core/tools';
 import { z } from 'zod';
 import { storeMemory, retrieveMemories } from './memory';
 
@@ -75,20 +73,29 @@ export async function chatWithLangChain(
   if (typeof userId !== 'string' || userId.trim().length === 0) {
     throw new Error('Invalid userId: must be a non-empty string');
   }
-  const model = new ChatOpenAI({
-    modelName: 'gpt-3.5-turbo',
+  const model = new AzureChatOpenAI({
+    azureOpenAIApiKey: process.env.AZURE_OPENAI_API_KEY,
+    azureOpenAIApiInstanceName: process.env.AZURE_OPENAI_INSTANCE_NAME || 'oaixrpdev001',
+    azureOpenAIApiDeploymentName: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4o',
+    azureOpenAIApiVersion: process.env.AZURE_OPENAI_API_VERSION || '2024-02-15-preview',
     temperature: 0.7,
-    openAIApiKey: process.env.OPENAI_API_KEY,
   });
 
-  // Create memory tools
   const tools = createMemoryTools(userId);
 
-  // Create the agent prompt
-  const prompt = ChatPromptTemplate.fromMessages([
-    [
-      'system',
-      `You are a helpful AI assistant with the ability to remember information about users.
+  // Convert messages to chat history
+  const chatHistory = messages.map((msg) => {
+    if (msg.role === 'user') {
+      return new HumanMessage(msg.content);
+    } else if (msg.role === 'assistant') {
+      return new AIMessage(msg.content);
+    } else {
+      return new SystemMessage(msg.content);
+    }
+  });
+
+  // Add system message at the beginning
+  const systemMessage = new SystemMessage(`You are a helpful AI assistant with the ability to remember information about users.
 
 IMPORTANT CAPABILITIES:
 - You can store important information about users using the "store_memory" tool
@@ -114,46 +121,12 @@ WHEN TO RETRIEVE MEMORIES:
 - When answering questions that could benefit from personal context
 - When user asks about something they mentioned before
 
-Be proactive in using these tools to provide a personalized experience.`,
-    ],
-    new MessagesPlaceholder('chat_history'),
-    ['human', '{input}'],
-    new MessagesPlaceholder('agent_scratchpad'),
-  ]);
+Be proactive in using these tools to provide a personalized experience.`);
 
-  // Create the agent
-  const agent = await createOpenAIFunctionsAgent({
-    llm: model,
-    tools,
-    prompt,
-  });
+  const allMessages = [systemMessage, ...chatHistory];
 
-  // Create the executor
-  const agentExecutor = new AgentExecutor({
-    agent,
-    tools,
-    verbose: process.env.LANGCHAIN_VERBOSE === 'true',
-  });
+  // Execute the model
+  const result = await model.bindTools(tools).invoke(allMessages);
 
-  // Convert messages to chat history (exclude the last user message as it's the input)
-  const chatHistory = messages.slice(0, -1).map((msg) => {
-    if (msg.role === 'user') {
-      return new HumanMessage(msg.content);
-    } else if (msg.role === 'assistant') {
-      return new AIMessage(msg.content);
-    } else {
-      return new SystemMessage(msg.content);
-    }
-  });
-
-  // Get the last message as input
-  const input = messages[messages.length - 1].content;
-
-  // Execute the agent
-  const result = await agentExecutor.invoke({
-    input,
-    chat_history: chatHistory,
-  });
-
-  return result.output;
+  return result.content.toString();
 }
