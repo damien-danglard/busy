@@ -84,7 +84,8 @@ See [docs/README.md](./docs/README.md) for a complete documentation index.
 ### Chat Application (Port 3000)
 - Built with Next.js 14 and React
 - NextAuth.js authentication with email/password
-- LangChain integration for AI conversations with OpenAI Functions Agent
+- LangGraph integration for advanced AI agent workflows with StateGraph
+- LangChain for memory tools and embeddings
 - Personal Memory RAG system with vector embeddings
 - Prisma ORM with PostgreSQL and pgvector
 - Tailwind CSS for styling
@@ -157,7 +158,7 @@ docker compose build chat-app
 
 - **Frontend**: Next.js 16, React 19, Tailwind CSS
 - **Backend**: Node.js 20, TypeScript
-- **AI/ML**: LangChain, Azure OpenAI (GPT-4o, text-embedding-3-large)
+- **AI/ML**: LangGraph (StateGraph), LangChain, Azure OpenAI (GPT-4o, text-embedding-3-large)
 - **Database**: PostgreSQL 16 + pgvector
 - **ORM**: Prisma
 - **Authentication**: NextAuth.js

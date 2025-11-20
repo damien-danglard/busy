@@ -45,7 +45,8 @@ The Busy monorepo consists of four main services orchestrated through Docker Com
 **Features:**
 - AI-powered chat interface
 - Message persistence via PostgreSQL
-- LangChain integration for advanced AI capabilities
+- LangGraph integration for advanced AI agent workflows
+- LangChain for memory tools and embeddings
 - MCP client for tool execution
 - RESTful API endpoints
 
