@@ -316,7 +316,7 @@ return { messages: [response] };
 - [LangGraph Documentation](https://js.langchain.com/docs/langgraph)
 - [StateGraph API](https://js.langchain.com/docs/langgraph/reference/graphs/state-graph)
 - [ToolNode API](https://js.langchain.com/docs/langgraph/reference/prebuilt/tool-node)
-- [LangChain Memory Tools](./langchain.ts)
+- [LangChain Memory Tools](../apps/chat-app/src/lib/langchain.ts)
 
 ## License
 
