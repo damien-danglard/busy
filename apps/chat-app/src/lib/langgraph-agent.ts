@@ -5,14 +5,6 @@ import { ToolNode } from '@langchain/langgraph/prebuilt';
 import { createMemoryTools } from './langchain';
 
 /**
- * State interface for the agent conversation
- */
-interface AgentState {
-  messages: BaseMessage[];
-  userId: string;
-}
-
-/**
  * System prompt for the AI assistant
  */
 const SYSTEM_PROMPT = `You are a helpful AI assistant with the ability to remember information about users.
