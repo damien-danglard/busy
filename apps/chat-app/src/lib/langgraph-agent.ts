@@ -66,33 +66,48 @@ export function createLangGraphAgent(userId: string) {
    * Function to determine if the agent should continue or end
    */
   function shouldContinue(state: typeof MessagesAnnotation.State) {
-    const messages = state.messages;
-    const lastMessage = messages[messages.length - 1];
+    try {
+      const messages = state.messages;
+      const lastMessage = messages[messages.length - 1];
 
-    // If the last message has tool calls, continue to tools
-    if ('tool_calls' in lastMessage && Array.isArray(lastMessage.tool_calls) && lastMessage.tool_calls.length > 0) {
-      return 'tools';
+      // If the last message has tool calls, continue to tools
+      if ('tool_calls' in lastMessage && Array.isArray(lastMessage.tool_calls) && lastMessage.tool_calls.length > 0) {
+        return 'tools';
+      }
+      // Otherwise, end
+      return END;
+    } catch (error) {
+      console.error('Error in shouldContinue:', error);
+      return END;
     }
-    // Otherwise, end
-    return END;
   }
 
   /**
    * Call the model with the current state
    */
   async function callModel(state: typeof MessagesAnnotation.State) {
-    const messages = state.messages;
-    
-    // Add system message if not present
-    const hasSystemMessage = messages.some(msg => msg._getType() === 'system');
-    const messagesToSend = hasSystemMessage 
-      ? messages 
-      : [new SystemMessage(SYSTEM_PROMPT), ...messages];
+    try {
+      const messages = state.messages;
+      
+      // Add system message if not present
+      const hasSystemMessage = messages.some(msg => msg._getType() === 'system');
+      const messagesToSend = hasSystemMessage 
+        ? messages 
+        : [new SystemMessage(SYSTEM_PROMPT), ...messages];
 
-    const response = await modelWithTools.invoke(messagesToSend);
-    
-    // Return the response to add to state
-    return { messages: [response] };
+      const response = await modelWithTools.invoke(messagesToSend);
+      
+      // Return the response to add to state
+      return { messages: [response] };
+    } catch (error) {
+      console.error('Error in callModel:', error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      // Return an AIMessage with error details so the agent can handle gracefully
+      const errorResponse = new AIMessage(
+        `Sorry, an error occurred while processing your request: ${errorMessage}`
+      );
+      return { messages: [errorResponse] };
+    }
   }
 
   // Create the state graph
