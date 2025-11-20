@@ -135,14 +135,28 @@ export async function chatWithLangGraph(
   // Create the agent
   const agent = createLangGraphAgent(userId);
 
-  // Execute the agent
-  const result = await agent.invoke({
-    messages: chatHistory,
-  });
+  try {
+    // Execute the agent
+    const result = await agent.invoke({
+      messages: chatHistory,
+    });
 
-  // Extract the final response
-  const finalMessages = result.messages;
-  const lastMessage = finalMessages[finalMessages.length - 1];
-  
-  return lastMessage.content.toString();
+    // Extract the final response
+    const finalMessages = result.messages;
+    if (!finalMessages || finalMessages.length === 0) {
+      throw new Error('No response messages returned from agent');
+    }
+    const lastMessage = finalMessages[finalMessages.length - 1];
+    if (!lastMessage || !lastMessage.content) {
+      throw new Error('Agent response message is missing content');
+    }
+    return lastMessage.content.toString();
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : String(error);
+    // Optionally log the error here
+    throw new Error(
+      `Failed to chat with LangGraph agent: ${errorMessage}`
+    );
+  }
 }
