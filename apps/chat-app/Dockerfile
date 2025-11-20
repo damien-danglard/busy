@@ -1,4 +1,5 @@
 FROM node:20-alpine AS base
+RUN apk add --no-cache openssl
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -12,7 +13,7 @@ RUN npm ci --only=production
 FROM base AS builder
 WORKDIR /app
 COPY apps/chat-app/package*.json ./
-RUN npm ci
+RUN npm install
 COPY apps/chat-app ./
 
 # Generate Prisma Client

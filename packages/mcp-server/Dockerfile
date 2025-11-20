@@ -12,7 +12,7 @@ RUN npm ci --only=production
 FROM base AS builder
 WORKDIR /app
 COPY packages/mcp-server/package*.json ./
-RUN npm ci
+RUN npm install
 COPY packages/mcp-server ./
 
 RUN npm run build

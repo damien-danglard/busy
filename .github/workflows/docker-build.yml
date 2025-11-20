@@ -45,16 +45,6 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
-    - name: Build n8n
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        file: ./apps/n8n/Dockerfile
-        push: false
-        tags: busy-n8n:test
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-
     - name: Test setup script
       run: |
         chmod +x ./test-setup.sh

@@ -37,6 +37,8 @@ busy/
 
 ## Quick Start
 
+For detailed setup instructions, see [docs/QUICKSTART.md](./docs/QUICKSTART.md).
+
 1. **Clone the repository**
    ```bash
    git clone https://github.com/damien-danglard/busy.git
@@ -47,27 +49,35 @@ busy/
    ```bash
    cp .env.example .env
    # Edit .env and configure:
-   # - OPENAI_API_KEY: Your OpenAI API key
-   # - NEXTAUTH_SECRET: Generate with 'openssl rand -base64 32'
+   # - Azure OpenAI credentials (see docs/QUICKSTART.md)
+   # - Database credentials
+   # - NextAuth secret
    ```
 
-3. **Start all services with Docker Compose**
+3. **Start with Docker Compose**
    ```bash
    docker compose up
    ```
 
-4. **Create demo user (optional)**
-   ```bash
-   # After services are running, seed the database with a demo user
-   docker exec busy-chat-app npm run db:seed
-   ```
-
-5. **Access the applications**
-   - Chat App: http://localhost:3000 (login: admin@busy.com / BusyAdmin2024!)
-   - n8n: http://localhost:5678 (credentials: admin/admin)
+4. **Access the applications**
+   - Chat App: http://localhost:3000
+   - n8n: http://localhost:5678 (admin/admin)
    - PostgreSQL: localhost:5432
 
-> **⚠️ Important**: This setup uses default credentials for development. For production deployment, change all default passwords and follow the security recommendations in the [Security](#security) section below.
+## 📚 Documentation
+
+All documentation is available in the [docs/](./docs) folder:
+
+- [**Quick Start Guide**](./docs/QUICKSTART.md) - Get started in minutes
+- [**Architecture**](./docs/ARCHITECTURE.md) - System architecture and design
+- [**Authentication**](./docs/AUTHENTICATION_FLOW.md) - User authentication flow
+- [**Memory & RAG**](./docs/MEMORY_RAG.md) - How the AI remembers information
+- [**LangSmith Setup**](./docs/LANGSMITH_SETUP.md) - Configure monitoring
+- [**Deployment Guide**](./docs/DEPLOYMENT_GUIDE.md) - Production deployment
+- [**Contributing**](./docs/CONTRIBUTING.md) - How to contribute
+- [**Changelog**](./docs/CHANGELOG.md) - Version history
+
+See [docs/README.md](./docs/README.md) for a complete documentation index.
 
 ## Services
 
@@ -103,7 +113,16 @@ For detailed information about the Personal Memory RAG feature, see [MEMORY_RAG.
 
 ## Development
 
+See [docs/CONTRIBUTING.md](./docs/CONTRIBUTING.md) for development guidelines.
+
 ### Local Development (without Docker)
+
+**Note**: Using Node Version Manager (nvm) is recommended to match the Docker Node.js version (20.x):
+```bash
+# Install nvm and Node.js 20
+nvm install 20
+nvm use 20
+```
 
 1. **Install dependencies**
    ```bash
@@ -116,19 +135,12 @@ For detailed information about the Personal Memory RAG feature, see [MEMORY_RAG.
    npx prisma migrate dev
    ```
 
-3. **Run services individually**
+3. **Run chat-app**
    ```bash
-   # Terminal 1: MCP Server
-   cd packages/mcp-server
-   npm run dev
-
-   # Terminal 2: Chat App
    cd apps/chat-app
    npm run dev
-
-   # Terminal 3: n8n
-   cd apps/n8n
-   npm start
+   ```
+   npm run dev
    ```
 
 ### Building Docker Images
@@ -141,51 +153,50 @@ docker compose build
 docker compose build chat-app
 ```
 
-## Environment Variables
+## Technologies
 
-### Root `.env`
-- `OPENAI_API_KEY`: Your OpenAI API key for LangChain
-- `NEXTAUTH_SECRET`: Secret key for NextAuth.js JWT encryption (generate with `openssl rand -base64 32`)
-- `NEXTAUTH_URL`: Base URL for NextAuth.js (e.g., `http://localhost:3000`)
-
-### Chat App
-- `DATABASE_URL`: PostgreSQL connection string
-- `OPENAI_API_KEY`: OpenAI API key
-- `NEXTAUTH_SECRET`: Secret for NextAuth.js
-- `NEXTAUTH_URL`: Base URL for authentication
-
-### n8n
-- `N8N_BASIC_AUTH_USER`: n8n username (default: admin)
-- `N8N_BASIC_AUTH_PASSWORD`: n8n password (default: admin)
-
-> **⚠️ SECURITY WARNING**: The default credentials should be changed immediately in production! This includes:
-> - n8n credentials (admin/admin)
-> - Chat app demo user (admin@busy.com / BusyAdmin2024!)
-> - NEXTAUTH_SECRET
-> - Database passwords
->
-> Use environment variables or `docker-compose.override.yml` to set secure credentials.
+- **Frontend**: Next.js 16, React 19, Tailwind CSS
+- **Backend**: Node.js 20, TypeScript
+- **AI/ML**: LangChain, Azure OpenAI (GPT-4o, text-embedding-3-large)
+- **Database**: PostgreSQL 16 + pgvector
+- **ORM**: Prisma
+- **Authentication**: NextAuth.js
+- **Workflow**: n8n
+- **Deployment**: Docker, Docker Compose
 
 ## Project Structure
 
-### Apps
-- **apps/n8n/**: n8n workflow automation application
-- **apps/chat-app/**: Next.js chat application with LangChain
+```
+busy/
+├── apps/
+│   └── chat-app/         # Next.js chat application
+├── packages/
+│   └── mcp-server/       # Model Context Protocol server
+├── data/                 # Docker volumes data (gitignored)
+├── docs/                 # Documentation
+├── .github/
+│   └── instructions/     # GitHub Copilot custom instructions
+└── docker-compose.yml    # Docker orchestration
+```
 
-### Packages
-- **packages/mcp-server/**: Shared MCP server implementation in TypeScript
+## Security
 
-## MCP (Model Context Protocol)
+⚠️ **Important**: Default credentials are for development only!
 
-The MCP server provides a standardized way for both applications to communicate and share tools. It implements:
-- Tool discovery and execution
-- Standardized request/response format
-- Inter-application communication
+For production:
+- Change all default passwords
+- Use strong `NEXTAUTH_SECRET`
+- Configure proper Azure OpenAI credentials
+- Enable HTTPS/TLS
+- Follow [docs/DEPLOYMENT_GUIDE.md](./docs/DEPLOYMENT_GUIDE.md)
 
-## Database Schema
+## License
 
-The chat application uses Prisma with the following models:
-- **Message**: Stores chat messages with role (user/assistant)
+See [LICENSE](./LICENSE) file.
+
+## Contributing
+
+Contributions are welcome! Please read [docs/CONTRIBUTING.md](./docs/CONTRIBUTING.md) first.
 - **Conversation**: Manages conversation threads
 - **Memory**: Stores user-specific memories with vector embeddings for semantic search
 - **User**: User accounts with authentication credentials
