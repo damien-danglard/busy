@@ -1,87 +1,79 @@
-Feature: LangGraph AI Agent System
-  As a developer
-  I want to use LangGraph for the AI agent implementation
-  So that I can customize agent behavior, create sub-agents, and have better control over conversation flow
+Feature: AI Agent System with Memory
+  As a user
+  I want to interact with an AI that remembers information about me
+  So that I can have personalized and context-aware conversations
 
   Background:
-    Given the application is using LangGraph v1.0.2
-    And the agent has access to memory tools
-    And the database is accessible
+    Given the AI chat application is running
+    And the memory system is operational
+    And I have a user account
 
-  Scenario: LangGraph agent processes user message
+  Scenario: Agent processes user message
     Given I am logged in and on the chat page
     When I send a message "Hello, how are you?"
-    Then the LangGraph agent should process the message
-    And I should receive an AI response
-    And the agent should use StateGraph for workflow management
+    Then I should receive an AI response
+    And the response should be relevant to my message
 
-  Scenario: Agent stores memory using LangGraph tools
+  Scenario: Agent stores memory from conversation
     Given I am logged in and chatting with the AI
     When I say "I love programming in TypeScript"
-    Then the LangGraph agent should invoke the store_memory tool
-    And the memory should be stored with content "User loves programming in TypeScript"
-    And I should see confirmation in the response
+    Then the AI should remember this information
+    And I should see acknowledgment in the response
 
-  Scenario: Agent retrieves memories using LangGraph tools
-    Given I have a stored memory "User loves programming in TypeScript"
+  Scenario: Agent recalls previous information
+    Given I previously told the AI "I love programming in TypeScript"
     When I ask "What programming languages do I like?"
-    Then the LangGraph agent should invoke the retrieve_memories tool
-    And the agent should find the relevant memory
+    Then the AI should recall my previous statement
     And the response should mention "TypeScript"
 
-  Scenario: Multi-turn conversation with state management
+  Scenario: Multi-turn conversation maintains context
     Given I am in an active conversation
     When I send multiple messages in sequence
-    Then the LangGraph agent should maintain conversation state
-    And each message should have access to previous context
-    And the StateGraph should track the full conversation flow
+    Then the AI should remember the context from previous messages
+    And each response should be relevant to the ongoing conversation
 
-  Scenario: Tool execution with conditional edges
-    Given I am chatting with the LangGraph agent
-    When the agent decides to use a tool
-    Then the workflow should transition to the tools node
-    And the tool should execute successfully
-    And the workflow should return to the agent node
-    And I should receive a final response
+  Scenario: Agent performs memory operations seamlessly
+    Given I am chatting with the AI
+    When I share information that should be remembered
+    Then the AI should store the information
+    And I should receive a natural response without interruption
 
-  Scenario: Error handling in LangGraph agent
+  Scenario: Error handling during conversation
     Given I am logged in and chatting
-    When an error occurs during tool execution
-    Then the LangGraph agent should handle the error gracefully
-    And I should receive an appropriate error message
-    And the agent should not crash or hang
+    When an error occurs while processing my message
+    Then I should receive an appropriate error message
+    And the chat should remain functional
 
-  Scenario: System prompt integration
-    Given the LangGraph agent is initialized
+  Scenario: Initial conversation behavior
+    Given I start a new conversation
     When I send my first message
-    Then the system prompt should be included in the conversation
-    And the agent should follow the memory storage guidelines
-    And the agent should be proactive about using tools
+    Then the AI should respond helpfully
+    And the AI should be ready to remember important information
+    And the AI should proactively offer to store relevant details
 
-  Scenario: Agent customization for future sub-agents
-    Given the LangGraph StateGraph is configured
-    When I need to add a specialized sub-agent
-    Then I should be able to add new nodes to the graph
-    And I should be able to define custom edges between nodes
-    And the sub-agent should integrate seamlessly with the main agent
+  Scenario: Extensible agent capabilities
+    Given the AI agent system is running
+    When new specialized capabilities are added to the system
+    Then the AI should be able to use these new capabilities
+    And users should experience enhanced functionality
+    And the system should remain stable
 
-  Scenario: User-specific agent instances
+  Scenario: User privacy and isolation
     Given multiple users are using the system
     When each user sends a message
-    Then each should have their own LangGraph agent instance
-    And each agent should only access that user's memories
-    And there should be no cross-user memory access
+    Then each user should receive personalized responses
+    And each user should only see their own stored information
+    And there should be no cross-user information leakage
 
-  Scenario: Tool node execution performance
-    Given I send a message requiring tool use
-    When the LangGraph agent invokes tools
-    Then the ToolNode should execute efficiently
-    And multiple tools should be callable in sequence if needed
-    And the final response should be returned promptly
+  Scenario: Efficient memory operations
+    Given I share multiple pieces of information in one message
+    When the AI processes my message
+    Then the AI should handle all the information efficiently
+    And I should receive a prompt response
 
-  Scenario: Backward compatibility with existing features
-    Given the system previously used basic LangChain
-    When I migrate to LangGraph
-    Then all existing memory features should still work
-    And users should not notice any breaking changes
-    And the API contract should remain the same
+  Scenario: System upgrade maintains user experience
+    Given the system has been upgraded with new AI technology
+    When I use the chat application
+    Then all existing features should still work
+    And I should not notice any breaking changes
+    And my previous conversations and memories should be preserved
