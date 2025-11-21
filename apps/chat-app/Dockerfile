@@ -1,5 +1,5 @@
 FROM node:20-alpine AS base
-RUN apk add --no-cache openssl
+# libssl3 is already included in node:20-alpine for Prisma
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -20,7 +20,7 @@ COPY apps/chat-app ./
 RUN npx prisma generate
 
 # Build Next.js (disable telemetry)
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
 # Production image
@@ -28,7 +28,7 @@ FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
@@ -45,7 +45,7 @@ USER nextjs
 
 EXPOSE 3000
 
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
 CMD ["node", "server.js"]
