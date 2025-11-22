@@ -25,15 +25,16 @@ jobs:
     - name: Validate docker-compose.yml
       run: docker compose config --quiet
 
-    - name: Build MCP Server
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        file: ./packages/mcp-server/Dockerfile
-        push: false
-        tags: busy-mcp-server:test
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+    # MCP Server build disabled - awaiting refactoring
+    # - name: Build MCP Server
+    #   uses: docker/build-push-action@v5
+    #   with:
+    #     context: .
+    #     file: ./packages/mcp-server/Dockerfile
+    #     push: false
+    #     tags: busy-mcp-server:test
+    #     cache-from: type=gha
+    #     cache-to: type=gha,mode=max
 
     - name: Build Chat App
       uses: docker/build-push-action@v5
