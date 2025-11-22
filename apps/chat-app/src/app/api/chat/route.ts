@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { chatWithLangChain } from '@/lib/langchain';
+import { chatWithLangGraph } from '@/lib/langgraph-agent';
 import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 
@@ -23,8 +23,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get response from LangChain with user context
-    const response = await chatWithLangChain(messages, session.user.id);
+    // Get response from LangGraph agent with user context
+    const response = await chatWithLangGraph(messages, session.user.id);
 
     // Store messages in database
     await prisma.message.create({

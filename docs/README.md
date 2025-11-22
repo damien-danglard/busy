@@ -20,6 +20,7 @@ Bienvenue dans la documentation du projet **Busy** - votre assistant de travail 
 - [**AUTHENTICATION_FLOW.md**](./AUTHENTICATION_FLOW.md) - Flux d'authentification avec NextAuth.js
 - [**MEMORY_RAG.md**](./MEMORY_RAG.md) - Système de mémoire RAG avec pgvector
 - [**MEMORY_EXAMPLES.md**](./MEMORY_EXAMPLES.md) - Exemples d'utilisation de la mémoire
+- [**LANGGRAPH.md**](./LANGGRAPH.md) - Agent IA avec LangGraph (StateGraph)
 
 ### Configuration
 - [**LANGSMITH_SETUP.md**](./LANGSMITH_SETUP.md) - Configuration de LangSmith pour le monitoring
@@ -47,7 +48,8 @@ Bienvenue dans la documentation du projet **Busy** - votre assistant de travail 
 ## 🔧 Technologies principales
 
 - **Next.js 16** - Framework React pour l'interface
-- **LangChain** - Framework pour les applications LLM
+- **LangGraph** - Architecture graph-based pour l'agent IA
+- **LangChain** - Framework pour les applications LLM et outils mémoire
 - **Azure OpenAI** - Modèles GPT-4 et embeddings
 - **PostgreSQL + pgvector** - Base de données avec recherche vectorielle
 - **Prisma** - ORM pour la base de données
