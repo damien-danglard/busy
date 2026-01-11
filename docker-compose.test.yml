@@ -1,0 +1,26 @@
+# Docker Compose for Running Tests
+# This file defines a PostgreSQL container specifically for test execution
+
+version: '3.8'
+
+services:
+  postgres-test:
+    image: pgvector/pgvector:pg16
+    container_name: busy-postgres-test
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-busy}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-busy123}
+      POSTGRES_DB: ${TEST_DB_NAME:-busy_test_db}
+    ports:
+      - "5433:5432"  # Use different port to avoid conflict with dev database
+    volumes:
+      - postgres-test-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-busy}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres-test-data:
+    driver: local
