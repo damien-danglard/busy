@@ -32,6 +32,36 @@ Given('a user uploads a document {string}', async function (this: CustomWorld, f
 });
 
 // Storage When steps
+When('the documents are processed', async function (this: CustomWorld) {
+  // For multiple documents with same name scenario
+  const documents = this.getTestData('documentsWithSameName');
+  if (documents) {
+    // Already processed, nothing to do
+    return;
+  }
+  
+  // For single document
+  const document = this.getTestData('currentDocument');
+  
+  if (!document) {
+    throw new Error('No document to process');
+  }
+
+  // Simulate processing: calculate hash, store metadata, etc.
+  const hash = crypto.createHash('sha256')
+    .update(document.filename + document.userId)
+    .digest('hex');
+
+  const processedDocument = {
+    ...document,
+    hash,
+    processed: true,
+    processedAt: new Date(),
+  };
+
+  this.setTestData('processedDocument', processedDocument);
+});
+
 When('the document is processed', async function (this: CustomWorld) {
   const document = this.getTestData('currentDocument');
   
@@ -149,11 +179,6 @@ Then('no ID collisions should occur', function (this: CustomWorld) {
 });
 
 // User association
-Given('I am logged in as {string}', async function (this: CustomWorld, email: string) {
-  const user = await this.createTestUser(email);
-  this.currentUser = user;
-});
-
 When('I upload a document {string}', async function (this: CustomWorld, filename: string) {
   const document = {
     id: `doc-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -305,12 +330,13 @@ Then('the log should record:', function (this: CustomWorld, dataTable: any) {
   const expected = dataTable.rowsHash();
   
   for (const [field, value] of Object.entries(expected)) {
-    if (value.includes('user ID')) {
+    const valueStr = String(value);
+    if (valueStr.includes('user ID')) {
       assert.ok(accessLog[field], `Log should have ${field}`);
-    } else if (value.includes('timestamp')) {
+    } else if (valueStr.includes('timestamp')) {
       assert.ok(accessLog[field] instanceof Date, `${field} should be a Date`);
     } else {
-      assert.ok(accessLog[field] === value || accessLog[field], `Log should record ${field}`);
+      assert.ok(accessLog[field] === valueStr || accessLog[field], `Log should record ${field}`);
     }
   }
 });

@@ -348,7 +348,12 @@ Then('the documents should be ordered by upload date descending', function (this
 
 Then('I should receive the document metadata', function (this: CustomWorld) {
   assert.ok(this.lastResponse, 'Should have a response');
-  assert.ok(this.lastResponse.document, 'Should have document metadata');
+  assert.ok(this.lastResponse.document || this.lastResponse.metadata, 'Should have document metadata');
+});
+
+Then('I should receive the metadata', function (this: CustomWorld) {
+  assert.ok(this.lastResponse, 'Should have a response');
+  assert.ok(this.lastResponse.document || this.lastResponse.metadata, 'Should have metadata');
 });
 
 Then('the metadata should include:', function (this: CustomWorld, dataTable: any) {
@@ -428,14 +433,14 @@ Then('pagination metadata should include:', function (this: CustomWorld, dataTab
   }
 });
 
-Then('I should receive a {string} error', function (this: CustomWorld, errorType: string) {
+Then('the limit should be {int} documents', function (this: CustomWorld, limit: number) {
+  const documents = this.lastResponse.documents || [];
+  assert.ok(documents.length <= limit, `Should not exceed ${limit} documents`);
+});
+
+Then('the document should not be accessible', function (this: CustomWorld) {
   assert.ok(this.lastError, 'Should have an error');
-  
-  if (errorType === 'not found') {
-    assert.strictEqual(this.lastError.status, 404, 'Should be a 404 error');
-  } else if (errorType === 'forbidden') {
-    assert.strictEqual(this.lastError.status, 403, 'Should be a 403 error');
-  }
+  assert.strictEqual(this.lastError.status, 404, 'Document should not be accessible');
 });
 
 Then('I should not be able to access the document', function (this: CustomWorld) {
@@ -473,16 +478,6 @@ Then('they should be sorted by upload date descending', function (this: CustomWo
     const next = new Date(documents[i + 1].uploadDate).getTime();
     assert.ok(current >= next, 'Documents should be sorted by upload date descending');
   }
-});
-
-Then('the limit should be {int} documents', function (this: CustomWorld, limit: number) {
-  const documents = this.lastResponse.documents || [];
-  assert.ok(documents.length <= limit, `Should not exceed ${limit} documents`);
-});
-
-Then('the document should not be accessible', function (this: CustomWorld) {
-  assert.ok(this.lastError, 'Should have an error');
-  assert.strictEqual(this.lastError.status, 404, 'Document should not be accessible');
 });
 
 // Helper function

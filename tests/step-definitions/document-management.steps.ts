@@ -549,22 +549,6 @@ Then('all {int} documents should be deleted', function (this: CustomWorld, expec
   assert.strictEqual(deletedCount, expectedCount, `Should delete ${expectedCount} documents`);
 });
 
-Then('I should see a success message {string}', function (this: CustomWorld, expectedMessage: string) {
-  assert.ok(this.lastResponse, 'Should have a response');
-  assert.strictEqual(this.lastResponse.message, expectedMessage, 
-    `Message should be "${expectedMessage}"`);
-});
-
-Then('I should receive a {string} error', function (this: CustomWorld, errorType: string) {
-  assert.ok(this.lastError, 'Should have an error');
-  
-  if (errorType === 'forbidden') {
-    assert.strictEqual(this.lastError.status, 403, 'Should be a 403 error');
-  } else if (errorType === 'not found') {
-    assert.strictEqual(this.lastError.status, 404, 'Should be a 404 error');
-  }
-});
-
 Then('the document should not be deleted', function (this: CustomWorld) {
   assert.ok(this.lastError, 'Should have an error preventing deletion');
   const otherDoc = this.getTestData('otherUserDocument');

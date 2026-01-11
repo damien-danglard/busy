@@ -23,13 +23,6 @@ Given('the database is accessible', async function (this: CustomWorld) {
   }
 });
 
-Given('I am logged in as {string}', async function (this: CustomWorld, email: string) {
-  // Create and login test user
-  const user = await this.createTestUser(email);
-  this.currentUser = user;
-  this.setTestData('isAuthenticated', true);
-});
-
 Given('I am not logged in', function (this: CustomWorld) {
   this.currentUser = undefined;
   this.setTestData('isAuthenticated', false);
@@ -195,11 +188,6 @@ Then('the document should be uploaded successfully', function (this: CustomWorld
   assert.ok(this.lastResponse, 'Should have a response');
   assert.strictEqual(this.lastResponse.status, 200, 'Status should be 200');
   assert.ok(!this.lastError, 'Should not have an error');
-});
-
-Then('I should see a success message {string}', function (this: CustomWorld, expectedMessage: string) {
-  assert.ok(this.lastResponse, 'Should have a response');
-  assert.strictEqual(this.lastResponse.message, expectedMessage, `Message should be "${expectedMessage}"`);
 });
 
 Then('the document should be stored in the database', function (this: CustomWorld) {
